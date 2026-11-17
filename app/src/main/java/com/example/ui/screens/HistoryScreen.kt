@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.*
@@ -16,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.model.CeSeasonHistory
+import com.example.domain.CricketCalculations
+import coil.compose.SubcomposeAsyncImage
 import com.example.ui.CricketUiState
 import com.example.ui.components.ArchiveLogoSlot
 import com.example.ui.components.ConnectionErrorBanner
@@ -168,9 +172,9 @@ private fun SeasonHistoryCard(entry: CeSeasonHistory) {
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimarySlate,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Clip
                     )
+                    CaptainName(entry.championCaptain)
                 }
             }
 
@@ -204,11 +208,54 @@ private fun SeasonHistoryCard(entry: CeSeasonHistory) {
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = TextPrimarySlate,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Clip
                     )
+                    CaptainName(entry.runnerUpCaptain)
                 }
             }
+
+            val photoUrl = CricketCalculations.buildFileUrl(entry.collectionId, entry.id, entry.teamPhoto)
+            if (photoUrl != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                SubcomposeAsyncImage(
+                    model = "$photoUrl?thumb=960x0",
+                    contentDescription = "Season ${entry.seasonNumber} team photo",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(4f / 3f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .testTag("history_photo_${entry.seasonNumber}"),
+                    loading = {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
+                    },
+                    error = {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("Team photo unavailable", color = TextSecondarySlate)
+                        }
+                    }
+                )
+                Text(
+                    text = "Season ${entry.seasonNumber} · Team photo",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TextSecondarySlate,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun CaptainName(name: String) {
+    if (name.isNotBlank()) {
+        Text(
+            text = "Captain: ${name.trim()}",
+            style = MaterialTheme.typography.bodySmall,
+            color = TextSecondarySlate,
+            modifier = Modifier.padding(top = 3.dp)
+        )
     }
 }

@@ -112,6 +112,9 @@ data class CeSeasonHistory(
     val runnerUp: String = "",
     val championLogo: String = "",
     val runnerUpLogo: String = "",
+    val championCaptain: String = "",
+    val runnerUpCaptain: String = "",
+    val teamPhoto: String = "",
     val published: Boolean = false
 )
 

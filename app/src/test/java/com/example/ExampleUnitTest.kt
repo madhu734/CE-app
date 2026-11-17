@@ -20,6 +20,32 @@ import kotlin.math.abs
 class ExampleUnitTest {
 
     @Test
+    fun `history parses optional captains and photo and accepts older records`() {
+        val updated = PocketBaseJsonParser.parseSeasonHistory(JSONObject("""
+            {
+              "id":"archive8", "season_number":8, "year":2025, "published":true,
+              "champion":"Literary Lions", "runner_up":"Ink Strikers",
+              "champion_captain":"Arif Hasan", "runner_up_captain":"Tanvir Islam",
+              "team_photo":"season_8_team.webp"
+            }
+        """.trimIndent()))
+        assertEquals("Arif Hasan", updated.championCaptain)
+        assertEquals("Tanvir Islam", updated.runnerUpCaptain)
+        assertEquals("season_8_team.webp", updated.teamPhoto)
+        assertEquals("Literary Lions", updated.champion)
+        assertEquals("Ink Strikers", updated.runnerUp)
+
+        val legacy = PocketBaseJsonParser.parseSeasonHistory(JSONObject("""
+            {"id":"archive7", "champion":"Verse Vipers", "runner_up":"Prose Panthers",
+             "champion_captain":null, "team_photo":null}
+        """.trimIndent()))
+        assertEquals("", legacy.championCaptain)
+        assertEquals("", legacy.runnerUpCaptain)
+        assertEquals("", legacy.teamPhoto)
+        assertEquals("Verse Vipers", legacy.champion)
+    }
+
+    @Test
     fun `overs formatting and calculation for 17 legal balls`() {
         assertEquals("2.5", CricketCalculations.formatOvers(17))
         assertEquals(17.0 / 6.0, CricketCalculations.oversAsDouble(17), 1e-9)

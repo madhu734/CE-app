@@ -228,6 +228,9 @@ object PocketBaseJsonParser {
             runnerUp = obj.optCleanString("runner_up"),
             championLogo = obj.optCleanString("champion_logo"),
             runnerUpLogo = obj.optCleanString("runner_up_logo"),
+            championCaptain = obj.optCleanString("champion_captain"),
+            runnerUpCaptain = obj.optCleanString("runner_up_captain"),
+            teamPhoto = obj.optCleanString("team_photo"),
             published = obj.optBoolean("published", false)
         )
     }

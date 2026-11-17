@@ -4,12 +4,15 @@ import android.content.Context
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
+import androidx.compose.runtime.mutableStateOf
 import com.example.model.*
 import com.example.network.CricketRepository
 import com.example.network.MatchScoringResult
 import com.example.network.TournamentSnapshot
 import com.example.ui.CrickEnglishApp
 import com.example.ui.CricketViewModel
+import com.example.ui.CricketUiState
+import com.example.ui.screens.HistoryScreen
 import com.example.ui.theme.MyApplicationTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -24,6 +27,32 @@ class ExampleRobolectricTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Test
+    fun `history displays both captains and omits empty optional details`() {
+        val entry = CeSeasonHistory(
+            id = "archive8", seasonNumber = 8, champion = "Literary Lions",
+            runnerUp = "Ink Strikers", championCaptain = "Arif Hasan",
+            runnerUpCaptain = "Tanvir Islam", teamPhoto = "team.webp", published = true
+        )
+        val state = mutableStateOf(CricketUiState(history = listOf(entry)))
+        composeTestRule.setContent {
+            MyApplicationTheme { HistoryScreen(uiState = state.value, onRefresh = {}) }
+        }
+        composeTestRule.onNodeWithText("Captain: Arif Hasan").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Captain: Tanvir Islam").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("history_photo_8").assertExists()
+
+        composeTestRule.runOnIdle {
+            state.value = CricketUiState(history = listOf(entry.copy(
+                championCaptain = "", runnerUpCaptain = "   ", teamPhoto = ""
+            )))
+        }
+        composeTestRule.onNodeWithText("Literary Lions").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Ink Strikers").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Captain:", substring = true).assertDoesNotExist()
+        composeTestRule.onNodeWithTag("history_photo_8").assertDoesNotExist()
+    }
 
     private class FakeTournamentRepository : CricketRepository {
         var scoreRunsInnings1 = 78
