@@ -155,7 +155,7 @@ object ScoringReplay {
                             if (!isWide) {
                                 bStat.balls += 1
                             }
-                            if (d.runType.equals("bat", ignoreCase = true)) {
+                            if (!isWide && d.runType.equals("bat", ignoreCase = true)) {
                                 bStat.runs += d.runs
                                 if (d.boundary == 4) bStat.fours += 1
                                 if (d.boundary == 6) bStat.sixes += 1
@@ -185,7 +185,7 @@ object ScoringReplay {
                             dismissalDesc = w.how.ifBlank { "Wicket" }
 
                             val nextBatter = w.next?.takeIf { it.isNotBlank() }
-                            if (nextBatter != null && wickets < allOutWickets) {
+                            if (nextBatter != null && wickets < allOutWickets && legalBalls < maxLegalBalls) {
                                 // Place next at the dismissed player's current end
                                 val dismissedAtPartnerEnd = !w.player.isBlank() && w.player == partner
                                 val survivor = if (dismissedAtPartnerEnd) striker else partner
@@ -214,14 +214,14 @@ object ScoringReplay {
 
                         // At the end of a completed six-ball over, swap ends if the innings still has overs
                         // available and the side is not all out.
-                        val chaseCompleted = inningsIdx == 1 && firstInningsTotal != null && teamRuns >= (firstInningsTotal + 1)
                         if (isLegal && legalBalls % 6 == 0) {
                             val hasOversAvailable = legalBalls < maxLegalBalls
                             val notAllOut = wickets < allOutWickets
-                            if (hasOversAvailable && notAllOut && !closedEarly && !chaseCompleted) {
+                            if (hasOversAvailable && notAllOut && !closedEarly) {
                                 val tmp = striker
                                 striker = partner
                                 partner = tmp
+                                bowler = null
                             }
                         }
 

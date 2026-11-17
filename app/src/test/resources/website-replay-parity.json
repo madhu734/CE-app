@@ -1,0 +1,1291 @@
+[
+  {
+    "name": "Extras and next bowler",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "wide",
+                "runType": "bat",
+                "runs": 4,
+                "boundary": 4
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "noBall",
+                "runType": "bye",
+                "runs": 1
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "legBye",
+                "runs": 2
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "bowler",
+              "player": "b2"
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 10,
+        "wickets": 0,
+        "balls": 7,
+        "striker": "a2",
+        "partner": "a1",
+        "bowler": "b2",
+        "closedEarly": false,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "wd+4",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 0,
+            "totalRuns": 5,
+            "totalWickets": 0
+          },
+          {
+            "index": 1,
+            "over": "0.1",
+            "label": "nb+1b",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 0,
+            "totalRuns": 7,
+            "totalWickets": 0
+          },
+          {
+            "index": 2,
+            "over": "0.1",
+            "label": "2lb",
+            "batter": "a2",
+            "bowler": "b1",
+            "legalBalls": 1,
+            "totalRuns": 9,
+            "totalWickets": 0
+          },
+          {
+            "index": 3,
+            "over": "0.2",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b1",
+            "legalBalls": 2,
+            "totalRuns": 9,
+            "totalWickets": 0
+          },
+          {
+            "index": 4,
+            "over": "0.3",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b1",
+            "legalBalls": 3,
+            "totalRuns": 9,
+            "totalWickets": 0
+          },
+          {
+            "index": 5,
+            "over": "0.4",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b1",
+            "legalBalls": 4,
+            "totalRuns": 9,
+            "totalWickets": 0
+          },
+          {
+            "index": 6,
+            "over": "0.5",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b1",
+            "legalBalls": 5,
+            "totalRuns": 9,
+            "totalWickets": 0
+          },
+          {
+            "index": 7,
+            "over": "0.6",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b1",
+            "legalBalls": 6,
+            "totalRuns": 9,
+            "totalWickets": 0
+          },
+          {
+            "index": 9,
+            "over": "1.1",
+            "label": "1",
+            "batter": "a1",
+            "bowler": "b2",
+            "legalBalls": 7,
+            "totalRuns": 10,
+            "totalWickets": 0
+          }
+        ],
+        "adjustments": []
+      }
+    ]
+  },
+  {
+    "name": "Non-striker run-out",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0,
+                "wicket": {
+                  "player": "a2",
+                  "how": "Run out",
+                  "next": "a3",
+                  "incomingOnStrike": false
+                }
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 4,
+                "boundary": 4
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 4,
+        "wickets": 1,
+        "balls": 2,
+        "striker": "a1",
+        "partner": "a3",
+        "bowler": "b1",
+        "closedEarly": false,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "W",
+            "batter": "a1",
+            "bowler": "b1",
+            "wicket": {
+              "player": "a2",
+              "how": "Run out",
+              "next": "a3",
+              "incomingOnStrike": false
+            },
+            "legalBalls": 1,
+            "totalRuns": 0,
+            "totalWickets": 1
+          },
+          {
+            "index": 1,
+            "over": "0.2",
+            "label": "4",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 2,
+            "totalRuns": 4,
+            "totalWickets": 1
+          }
+        ],
+        "adjustments": []
+      }
+    ]
+  },
+  {
+    "name": "Retired batter returns",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 4,
+                "boundary": 4
+              }
+            },
+            {
+              "type": "replaceBatter",
+              "outgoing": "a1",
+              "incoming": "a3"
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 2
+              }
+            },
+            {
+              "type": "replaceBatter",
+              "outgoing": "a2",
+              "incoming": "a1"
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 6,
+        "wickets": 0,
+        "balls": 2,
+        "striker": "a3",
+        "partner": "a1",
+        "bowler": "b1",
+        "closedEarly": false,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "4",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 1,
+            "totalRuns": 4,
+            "totalWickets": 0
+          },
+          {
+            "index": 2,
+            "over": "0.2",
+            "label": "2",
+            "batter": "a3",
+            "bowler": "b1",
+            "legalBalls": 2,
+            "totalRuns": 6,
+            "totalWickets": 0
+          }
+        ],
+        "adjustments": []
+      }
+    ]
+  },
+  {
+    "name": "Explicit swap",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 1
+              }
+            },
+            {
+              "type": "swap"
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 3,
+        "wickets": 0,
+        "balls": 2,
+        "striker": "a1",
+        "partner": "a2",
+        "bowler": "b1",
+        "closedEarly": false,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "1",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 1,
+            "totalRuns": 1,
+            "totalWickets": 0
+          },
+          {
+            "index": 2,
+            "over": "0.2",
+            "label": "2",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 2,
+            "totalRuns": 3,
+            "totalWickets": 0
+          }
+        ],
+        "adjustments": []
+      }
+    ]
+  },
+  {
+    "name": "Early closure and adjustments",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 4,
+                "boundary": 4
+              }
+            },
+            {
+              "type": "adjustRuns",
+              "runs": 5
+            },
+            {
+              "type": "closeInnings"
+            },
+            {
+              "type": "adjustRuns",
+              "runs": -2
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 7,
+        "wickets": 0,
+        "balls": 1,
+        "striker": "a1",
+        "partner": "a2",
+        "bowler": "b1",
+        "closedEarly": true,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "4",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 1,
+            "totalRuns": 4,
+            "totalWickets": 0
+          }
+        ],
+        "adjustments": [
+          {
+            "index": 1,
+            "runs": 5,
+            "legalBalls": 1,
+            "totalRuns": 9,
+            "totalWickets": 0
+          },
+          {
+            "index": 3,
+            "runs": -2,
+            "legalBalls": 1,
+            "totalRuns": 7,
+            "totalWickets": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Waiting for next bowler",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 0,
+        "wickets": 0,
+        "balls": 6,
+        "striker": "a2",
+        "partner": "a1",
+        "bowler": "",
+        "closedEarly": false,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 1,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 1,
+            "over": "0.2",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 2,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 2,
+            "over": "0.3",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 3,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 3,
+            "over": "0.4",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 4,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 4,
+            "over": "0.5",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 5,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 5,
+            "over": "0.6",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 6,
+            "totalRuns": 0,
+            "totalWickets": 0
+          }
+        ],
+        "adjustments": []
+      }
+    ]
+  },
+  {
+    "name": "Last-ball wicket ignores next batter",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "bowler",
+              "player": "b2"
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0,
+                "wicket": {
+                  "player": "a2",
+                  "how": "Run out",
+                  "next": "a3"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 0,
+        "wickets": 1,
+        "balls": 12,
+        "striker": "a2",
+        "partner": "a1",
+        "bowler": "b2",
+        "closedEarly": false,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 1,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 1,
+            "over": "0.2",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 2,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 2,
+            "over": "0.3",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 3,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 3,
+            "over": "0.4",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 4,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 4,
+            "over": "0.5",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 5,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 5,
+            "over": "0.6",
+            "label": "0",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 6,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 7,
+            "over": "1.1",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b2",
+            "legalBalls": 7,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 8,
+            "over": "1.2",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b2",
+            "legalBalls": 8,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 9,
+            "over": "1.3",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b2",
+            "legalBalls": 9,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 10,
+            "over": "1.4",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b2",
+            "legalBalls": 10,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 11,
+            "over": "1.5",
+            "label": "0",
+            "batter": "a2",
+            "bowler": "b2",
+            "legalBalls": 11,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 12,
+            "over": "1.6",
+            "label": "W",
+            "batter": "a2",
+            "bowler": "b2",
+            "wicket": {
+              "player": "a2",
+              "how": "Run out",
+              "next": "a3"
+            },
+            "legalBalls": 12,
+            "totalRuns": 0,
+            "totalWickets": 1
+          }
+        ],
+        "adjustments": []
+      }
+    ]
+  },
+  {
+    "name": "Chase resumed by deduction",
+    "log": {
+      "version": 1,
+      "overs": 2,
+      "lineups": [
+        {
+          "team": "a",
+          "players": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "team": "b",
+          "players": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        }
+      ],
+      "innings": [
+        {
+          "team": "a",
+          "opening": {
+            "striker": "a1",
+            "partner": "a2",
+            "bowler": "b1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 4,
+                "boundary": 4
+              }
+            },
+            {
+              "type": "closeInnings"
+            }
+          ]
+        },
+        {
+          "team": "b",
+          "opening": {
+            "striker": "b1",
+            "partner": "b2",
+            "bowler": "a1"
+          },
+          "plays": [
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 0
+              }
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 6,
+                "boundary": 6
+              }
+            },
+            {
+              "type": "adjustRuns",
+              "runs": -2
+            },
+            {
+              "type": "bowler",
+              "player": "a2"
+            },
+            {
+              "type": "ball",
+              "delivery": {
+                "kind": "legal",
+                "runType": "bat",
+                "runs": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "innings": [
+      {
+        "team": "a",
+        "runs": 4,
+        "wickets": 0,
+        "balls": 1,
+        "striker": "a1",
+        "partner": "a2",
+        "bowler": "b1",
+        "closedEarly": true,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "4",
+            "batter": "a1",
+            "bowler": "b1",
+            "legalBalls": 1,
+            "totalRuns": 4,
+            "totalWickets": 0
+          }
+        ],
+        "adjustments": []
+      },
+      {
+        "team": "b",
+        "runs": 5,
+        "wickets": 0,
+        "balls": 7,
+        "striker": "b1",
+        "partner": "b2",
+        "bowler": "a2",
+        "closedEarly": false,
+        "deliveries": [
+          {
+            "index": 0,
+            "over": "0.1",
+            "label": "0",
+            "batter": "b1",
+            "bowler": "a1",
+            "legalBalls": 1,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 1,
+            "over": "0.2",
+            "label": "0",
+            "batter": "b1",
+            "bowler": "a1",
+            "legalBalls": 2,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 2,
+            "over": "0.3",
+            "label": "0",
+            "batter": "b1",
+            "bowler": "a1",
+            "legalBalls": 3,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 3,
+            "over": "0.4",
+            "label": "0",
+            "batter": "b1",
+            "bowler": "a1",
+            "legalBalls": 4,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 4,
+            "over": "0.5",
+            "label": "0",
+            "batter": "b1",
+            "bowler": "a1",
+            "legalBalls": 5,
+            "totalRuns": 0,
+            "totalWickets": 0
+          },
+          {
+            "index": 5,
+            "over": "0.6",
+            "label": "6",
+            "batter": "b1",
+            "bowler": "a1",
+            "legalBalls": 6,
+            "totalRuns": 6,
+            "totalWickets": 0
+          },
+          {
+            "index": 8,
+            "over": "1.1",
+            "label": "1",
+            "batter": "b2",
+            "bowler": "a2",
+            "legalBalls": 7,
+            "totalRuns": 5,
+            "totalWickets": 0
+          }
+        ],
+        "adjustments": [
+          {
+            "index": 6,
+            "runs": -2,
+            "legalBalls": 6,
+            "totalRuns": 4,
+            "totalWickets": 0
+          }
+        ]
+      }
+    ]
+  }
+]

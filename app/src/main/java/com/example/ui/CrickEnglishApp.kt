@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Groups
@@ -17,6 +18,8 @@ import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -24,7 +27,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,6 +59,7 @@ fun CrickEnglishApp(
     // "match:<id>", "team:<id>", "player:<id>"
     var navStack by rememberSaveable { mutableStateOf(listOf("tab:HOME")) }
     val currentRoute = navStack.lastOrNull() ?: "tab:HOME"
+    val screenState = rememberSaveableStateHolder()
 
     fun pushRoute(route: String) {
         if (navStack.lastOrNull() != route) {
@@ -90,58 +94,24 @@ fun CrickEnglishApp(
         }
     }
 
-    // Track foreground state for 10-second polling and immediate foreground refresh
-    val lifecycleOwner = LocalLifecycleOwner.current
-    var isForeground by remember { mutableStateOf(true) }
-    var resumeCount by remember { mutableIntStateOf(0) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val openMatchId = currentRoute.takeIf { it.startsWith("match:") }?.removePrefix("match:")
+    val scoredMatch = uiState.matches.firstOrNull { it.id == openMatchId && it.scorecard != null }
+    val showScorecard = (scoredMatch?.let { uiState.matchDetailTabsByMatchId[it.id] } ?: 0) == 0
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    isForeground = true
-                    resumeCount += 1
-                }
-                Lifecycle.Event.ON_PAUSE, Lifecycle.Event.ON_STOP -> {
-                    isForeground = false
-                }
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
+    LaunchedEffect(lifecycle, scoredMatch?.id, scoredMatch?.updated, showScorecard) {
+        if (scoredMatch == null || !showScorecard) return@LaunchedEffect
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.fetchScoring(scoredMatch.id)
         }
     }
 
-    val isHomeVisible = currentRoute == "tab:HOME"
-    val openMatchId = if (currentRoute.startsWith("match:")) currentRoute.removePrefix("match:") else null
-    val isMatchDetailVisible = openMatchId != null
-
-    // Fetch scoring log whenever a match detail screen is opened or its updated timestamp changes
-    val currentMatchUpdated = remember(openMatchId, uiState.matches) {
-        openMatchId?.let { id -> uiState.matches.firstOrNull { it.id == id }?.updated }
-    }
-    LaunchedEffect(openMatchId, currentMatchUpdated) {
-        if (openMatchId != null) {
-            viewModel.loadMatchScoring(openMatchId, force = false)
-        }
-    }
-
-    // Immediate refresh when returning to foreground while Home or Match details is visible,
-    // and periodic 10-second polling while in foreground on Home or Match details.
-    LaunchedEffect(enablePolling, isForeground, isHomeVisible, openMatchId, resumeCount) {
-        if (!enablePolling || !isForeground) return@LaunchedEffect
-        if (!isHomeVisible && !isMatchDetailVisible) return@LaunchedEffect
-
-        if (resumeCount > 1 && uiState.hasLoadedOnce) {
-            viewModel.refreshPublishedMatches(selectedMatchIdForScoring = openMatchId)
-        }
-
-        while (isForeground && (isHomeVisible || isMatchDetailVisible)) {
-            delay(10_000L)
-            if (isForeground && (isHomeVisible || isMatchDetailVisible)) {
-                viewModel.refreshPublishedMatches(selectedMatchIdForScoring = openMatchId)
+    LaunchedEffect(lifecycle, enablePolling, currentRoute) {
+        if (!enablePolling || (currentRoute != "tab:HOME" && openMatchId == null)) return@LaunchedEffect
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                viewModel.pollPublishedMatches()
+                delay(10_000L)
             }
         }
     }
@@ -196,110 +166,118 @@ fun CrickEnglishApp(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            when {
-                currentRoute.startsWith("match:") -> {
-                    val matchId = currentRoute.removePrefix("match:")
-                    MatchDetailScreen(
-                        matchId = matchId,
-                        uiState = uiState,
-                        onBack = ::popBack,
-                        onRefreshScore = {
-                            viewModel.refreshPublishedMatches(
-                                selectedMatchIdForScoring = matchId,
-                                forceScoringFetch = true
+            screenState.SaveableStateProvider(currentRoute) {
+                when {
+                    uiState.isInitialLoading -> Box(Modifier.fillMaxSize().statusBarsPadding(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                    !uiState.hasLoadedOnce && uiState.errorMessage != null -> {
+                        Box(Modifier.statusBarsPadding()) {
+                            com.example.ui.components.ConnectionErrorBanner(
+                                uiState.errorMessage!!, null, { viewModel.loadTournament() }
                             )
-                        },
-                        onTabSelected = { tabIdx ->
-                            viewModel.setMatchDetailTab(matchId, tabIdx)
-                        },
-                        onSelectReplayInnings = { innIdx ->
-                            viewModel.setSelectedReplayInnings(matchId, innIdx)
-                        },
-                        onSelectComparisonMetric = { metric ->
-                            viewModel.setComparisonMetric(matchId, metric)
-                        },
-                        onPlayerClick = { playerId ->
-                            pushRoute("player:$playerId")
-                        },
-                        onTeamClick = { teamId ->
-                            pushRoute("team:$teamId")
                         }
-                    )
-                }
+                    }
+                    currentRoute.startsWith("match:") -> {
+                        val matchId = currentRoute.removePrefix("match:")
+                        MatchDetailScreen(
+                            matchId = matchId,
+                            uiState = uiState,
+                            onBack = ::popBack,
+                            onRefreshScore = { viewModel.refreshPublishedMatches(matchId) },
+                            onRetryScoring = { viewModel.retryMatchScoring(matchId) },
+                            onTabSelected = { tabIdx ->
+                                viewModel.setMatchDetailTab(matchId, tabIdx)
+                            },
+                            onSelectReplayInnings = { innIdx ->
+                                viewModel.setSelectedReplayInnings(matchId, innIdx)
+                            },
+                            onSelectComparisonMetric = { metric ->
+                                viewModel.setComparisonMetric(matchId, metric)
+                            },
+                            onPlayerClick = { playerId ->
+                                pushRoute("player:$playerId")
+                            },
+                            onTeamClick = { teamId ->
+                                pushRoute("team:$teamId")
+                            }
+                        )
+                    }
 
-                currentRoute.startsWith("team:") -> {
-                    val teamId = currentRoute.removePrefix("team:")
-                    TeamDetailScreen(
-                        teamId = teamId,
-                        uiState = uiState,
-                        onBack = ::popBack,
-                        onPlayerClick = { playerId ->
-                            pushRoute("player:$playerId")
-                        },
-                        onMatchClick = { matchId ->
-                            pushRoute("match:$matchId")
-                        },
-                        onRefresh = { viewModel.loadTournament() }
-                    )
-                }
+                    currentRoute.startsWith("team:") -> {
+                        val teamId = currentRoute.removePrefix("team:")
+                        TeamDetailScreen(
+                            teamId = teamId,
+                            uiState = uiState,
+                            onBack = ::popBack,
+                            onPlayerClick = { playerId ->
+                                pushRoute("player:$playerId")
+                            },
+                            onMatchClick = { matchId ->
+                                pushRoute("match:$matchId")
+                            },
+                            onRefresh = { viewModel.loadTournament() }
+                        )
+                    }
 
-                currentRoute.startsWith("player:") -> {
-                    val playerId = currentRoute.removePrefix("player:")
-                    PlayerProfileScreen(
-                        playerId = playerId,
-                        uiState = uiState,
-                        onBack = ::popBack,
-                        onTeamClick = { teamId ->
-                            pushRoute("team:$teamId")
-                        },
-                        onMatchClick = { matchId ->
-                            pushRoute("match:$matchId")
-                        },
-                        onRefresh = { viewModel.loadTournament() }
-                    )
-                }
+                    currentRoute.startsWith("player:") -> {
+                        val playerId = currentRoute.removePrefix("player:")
+                        PlayerProfileScreen(
+                            playerId = playerId,
+                            uiState = uiState,
+                            onBack = ::popBack,
+                            onTeamClick = { teamId ->
+                                pushRoute("team:$teamId")
+                            },
+                            onMatchClick = { matchId ->
+                                pushRoute("match:$matchId")
+                            },
+                            onRefresh = { viewModel.loadTournament() }
+                        )
+                    }
 
-                currentRoute == "tab:${BottomNavTab.TEAMS_PLAYERS.name}" -> {
-                    TeamsAndPlayersScreen(
-                        uiState = uiState,
-                        onTeamClick = { teamId -> pushRoute("team:$teamId") },
-                        onPlayerClick = { playerId -> pushRoute("player:$playerId") },
-                        onRefresh = { viewModel.loadTournament() }
-                    )
-                }
+                    currentRoute == "tab:${BottomNavTab.TEAMS_PLAYERS.name}" -> {
+                        TeamsAndPlayersScreen(
+                            uiState = uiState,
+                            onTeamClick = { teamId -> pushRoute("team:$teamId") },
+                            onPlayerClick = { playerId -> pushRoute("player:$playerId") },
+                            onRefresh = { viewModel.loadTournament() }
+                        )
+                    }
 
-                currentRoute == "tab:${BottomNavTab.POINTS_STATS.name}" -> {
-                    PointsAndStatsScreen(
-                        uiState = uiState,
-                        onTabSelected = { tabIdx -> viewModel.setPointsStatsTab(tabIdx) },
-                        onTeamClick = { teamId -> pushRoute("team:$teamId") },
-                        onPlayerClick = { playerId -> pushRoute("player:$playerId") },
-                        onRefresh = { viewModel.loadTournament() }
-                    )
-                }
+                    currentRoute == "tab:${BottomNavTab.POINTS_STATS.name}" -> {
+                        PointsAndStatsScreen(
+                            uiState = uiState,
+                            onTabSelected = { tabIdx -> viewModel.setPointsStatsTab(tabIdx) },
+                            onTeamClick = { teamId -> pushRoute("team:$teamId") },
+                            onPlayerClick = { playerId -> pushRoute("player:$playerId") },
+                            onRefresh = { viewModel.loadTournament() }
+                        )
+                    }
 
-                currentRoute == "tab:${BottomNavTab.HISTORY.name}" -> {
-                    HistoryScreen(
-                        uiState = uiState,
-                        onRefresh = { viewModel.loadTournament() }
-                    )
-                }
+                    currentRoute == "tab:${BottomNavTab.HISTORY.name}" -> {
+                        HistoryScreen(
+                            uiState = uiState,
+                            onRefresh = { viewModel.loadTournament() }
+                        )
+                    }
 
-                else -> {
-                    HomeScreen(
-                        uiState = uiState,
-                        onFilterSelected = { filter -> viewModel.setHomeMatchFilter(filter) },
-                        onMatchClick = { matchId -> pushRoute("match:$matchId") },
-                        onTeamClick = { teamId -> pushRoute("team:$teamId") },
-                        onNavigateToStandings = {
-                            viewModel.setPointsStatsTab(0)
-                            selectBottomTab(BottomNavTab.POINTS_STATS)
-                        },
-                        onNavigateToTeams = {
-                            selectBottomTab(BottomNavTab.TEAMS_PLAYERS)
-                        },
-                        onRefresh = { viewModel.loadTournament() }
-                    )
+                    else -> {
+                        HomeScreen(
+                            uiState = uiState,
+                            onFilterSelected = { filter -> viewModel.setHomeMatchFilter(filter) },
+                            onMatchClick = { matchId -> pushRoute("match:$matchId") },
+                            onTeamClick = { teamId -> pushRoute("team:$teamId") },
+                            onNavigateToStandings = {
+                                viewModel.setPointsStatsTab(0)
+                                selectBottomTab(BottomNavTab.POINTS_STATS)
+                            },
+                            onNavigateToTeams = {
+                                selectBottomTab(BottomNavTab.TEAMS_PLAYERS)
+                            },
+                            onRefresh = { viewModel.loadTournament() }
+                        )
+                    }
                 }
             }
         }

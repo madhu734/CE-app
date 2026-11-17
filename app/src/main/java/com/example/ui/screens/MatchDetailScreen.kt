@@ -46,6 +46,7 @@ fun MatchDetailScreen(
     uiState: CricketUiState,
     onBack: () -> Unit,
     onRefreshScore: () -> Unit,
+    onRetryScoring: () -> Unit,
     onTabSelected: (Int) -> Unit,
     onSelectReplayInnings: (Int) -> Unit,
     onSelectComparisonMetric: (ComparisonMetric) -> Unit,
@@ -198,7 +199,7 @@ fun MatchDetailScreen(
 
                 // Team scorecards
                 val inningsOrder = buildTeamOrderForScorecard(match)
-                if (inningsOrder.isEmpty() && resolvedPlayerStats.isEmpty()) {
+                if (match.scorecard == null) {
                     item(key = "unscored_fixture_notice") {
                         Card(
                             colors = CardDefaults.cardColors(containerColor = ScorecardWhite),
@@ -255,8 +256,19 @@ fun MatchDetailScreen(
                     }
                 }
 
-                // Innings Comparison Chart (for completed match with delivery data for both innings)
                 val replayed = scoringState.replayed
+                // Load replay only for matches with a published scorecard.
+                if (match.scorecard != null) item(key = "ball_by_ball_section") {
+                    BallByBallSection(
+                        scoringState = scoringState,
+                        teamMap = teamMap,
+                        playerMap = playerMap,
+                        onSelectInnings = onSelectReplayInnings,
+                        onRetryScoring = onRetryScoring,
+                        onPlayerClick = onPlayerClick
+                    )
+                }
+                // Innings Comparison Chart (for completed match with delivery data for both innings)
                 if (match.status.equals("completed", ignoreCase = true) &&
                     replayed != null &&
                     replayed.canCompareInnings
@@ -271,17 +283,6 @@ fun MatchDetailScreen(
                     }
                 }
 
-                // Ball by ball section
-                item(key = "ball_by_ball_section") {
-                    BallByBallSection(
-                        scoringState = scoringState,
-                        teamMap = teamMap,
-                        playerMap = playerMap,
-                        onSelectInnings = onSelectReplayInnings,
-                        onRetryScoring = onRefreshScore,
-                        onPlayerClick = onPlayerClick
-                    )
-                }
             } else {
                 // Squads Tab
                 item(key = "squads_section") {
@@ -1112,6 +1113,7 @@ private fun LegendItem(color: Color, label: String) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BallByBallSection(
     scoringState: MatchScoringUiState,
@@ -1136,6 +1138,18 @@ private fun BallByBallSection(
                 color = TextPrimarySlate
             )
             Spacer(modifier = Modifier.height(8.dp))
+
+            if (scoringState.state == ScoringLoadState.LOADED && scoringState.errorMessage != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "Showing the previous ball log. " + scoringState.errorMessage,
+                        modifier = Modifier.weight(1f),
+                        color = LiveRed,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    TextButton(onClick = onRetryScoring) { Text("Retry") }
+                }
+            }
 
             when (scoringState.state) {
                 ScoringLoadState.IDLE, ScoringLoadState.LOADING -> {
@@ -1202,7 +1216,7 @@ private fun BallByBallSection(
 
                         // Switch batting innings (latest innings selected by default)
                         if (replayed.innings.size > 1) {
-                            Row(
+                            FlowRow(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {

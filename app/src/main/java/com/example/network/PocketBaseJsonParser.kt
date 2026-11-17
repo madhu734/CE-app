@@ -234,7 +234,8 @@ object PocketBaseJsonParser {
 
     fun parseScoringLog(obj: JSONObject): CeScoringLog? {
         if (obj.length() == 0) return null
-        val version = obj.optInt("version", 1)
+        val version = obj.optInt("version", 0)
+        if (version != 1) return null
         val overs = obj.optInt("overs", 0)
         val outcome = obj.optCleanString("outcome").ifEmpty { null }
 
@@ -272,8 +273,8 @@ object PocketBaseJsonParser {
                 val plays = mutableListOf<CeScoringPlay>()
                 if (playsArr != null) {
                     for (j in 0 until playsArr.length()) {
-                        val pObj = playsArr.optJSONObject(j) ?: continue
-                        parseScoringPlay(pObj)?.let { plays.add(it) }
+                        val pObj = playsArr.getJSONObject(j)
+                        plays.add(parseScoringPlay(pObj))
                     }
                 }
                 innings.add(CeScoringInnings(team = tId, opening = opening, plays = plays))
@@ -289,12 +290,13 @@ object PocketBaseJsonParser {
         )
     }
 
-    private fun parseScoringPlay(obj: JSONObject): CeScoringPlay? {
+    private fun parseScoringPlay(obj: JSONObject): CeScoringPlay {
         return when (obj.optCleanString("type")) {
             "ball" -> {
-                val delObj = obj.optJSONObject("delivery") ?: return null
-                val kind = delObj.optCleanString("kind").ifEmpty { "legal" }
-                val runType = delObj.optCleanString("runType").ifEmpty { "bat" }
+                val delObj = obj.getJSONObject("delivery")
+                val kind = delObj.getString("kind")
+                val runType = delObj.getString("runType")
+                require(kind in listOf("legal", "wide", "noBall") && runType in listOf("bat", "bye", "legBye"))
                 val runs = delObj.optInt("runs", 0)
                 val boundary = if (delObj.has("boundary") && !delObj.isNull("boundary")) {
                     delObj.optInt("boundary", 0).takeIf { it == 4 || it == 6 }
@@ -328,7 +330,7 @@ object PocketBaseJsonParser {
             )
             "adjustRuns" -> CeScoringPlay.AdjustRuns(runs = obj.optInt("runs", 0))
             "closeInnings" -> CeScoringPlay.CloseInnings
-            else -> null
+            else -> error("Unsupported scoring event: ${obj.optCleanString("type")}")
         }
     }
 

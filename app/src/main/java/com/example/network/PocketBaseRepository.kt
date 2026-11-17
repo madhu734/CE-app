@@ -2,11 +2,18 @@ package com.example.network
 
 import com.example.domain.CricketCalculations
 import com.example.model.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -55,84 +62,85 @@ class PocketBaseRepository(
 
     override suspend fun fetchFullTournament(preferredSeasonId: String?): Result<TournamentSnapshot> =
         withContext(Dispatchers.IO) {
-            runCatching {
-                val seasons = fetchAllRecords(
-                    collection = "ce_seasons",
-                    sort = "-number",
-                    itemParser = PocketBaseJsonParser::parseSeason
-                )
-                val activeSeason = if (preferredSeasonId != null) {
-                    seasons.firstOrNull { it.id == preferredSeasonId }
-                        ?: CricketCalculations.selectSeason(seasons)
-                } else {
-                    CricketCalculations.selectSeason(seasons)
-                }
+            networkResult {
+                coroutineScope {
+                    val history = async { loadHistory() }
+                    val seasons = fetchAllRecords(
+                        collection = "ce_seasons",
+                        sort = "-number",
+                        itemParser = PocketBaseJsonParser::parseSeason
+                    )
+                    val activeSeason = if (preferredSeasonId != null) {
+                        seasons.firstOrNull { it.id == preferredSeasonId }
+                            ?: CricketCalculations.selectSeason(seasons)
+                    } else {
+                        CricketCalculations.selectSeason(seasons)
+                    }
 
-                val history = fetchAllRecords(
-                    collection = "ce_season_history",
-                    filter = "published = true",
-                    sort = "-season_number",
-                    itemParser = PocketBaseJsonParser::parseSeasonHistory
-                )
+                    if (activeSeason == null) {
+                        return@coroutineScope TournamentSnapshot(
+                            seasons = seasons,
+                            activeSeason = null,
+                            teams = emptyList(),
+                            players = emptyList(),
+                            matches = emptyList(),
+                            legacyStatsByMatchId = emptyMap(),
+                            history = history.await()
+                        )
+                    }
 
-                if (activeSeason == null) {
-                    return@runCatching TournamentSnapshot(
+                    val seasonFilter = "season = \"${escapeFilterValue(activeSeason.id)}\""
+                    val teams = async {
+                        fetchAllRecords(
+                            collection = "ce_teams",
+                            filter = seasonFilter,
+                            sort = "name",
+                            itemParser = PocketBaseJsonParser::parseTeam
+                        )
+                    }
+
+                    val players = async {
+                        fetchAllRecords(
+                            collection = "ce_players",
+                            sort = "name",
+                            itemParser = PocketBaseJsonParser::parsePlayer
+                        )
+                    }
+
+                    val matches = async { fetchMatchesInternal(activeSeason.id) }
+
+                    val legacyStats = async {
+                        fetchAllRecords(
+                            collection = "ce_player_match_stats",
+                            filter = "match.season = \"${escapeFilterValue(activeSeason.id)}\"",
+                            itemParser = { PocketBaseJsonParser.parsePlayerMatchStat(it) }
+                        ).groupBy { it.match }
+                    }
+
+                    TournamentSnapshot(
                         seasons = seasons,
-                        activeSeason = null,
-                        teams = emptyList(),
-                        players = emptyList(),
-                        matches = emptyList(),
-                        legacyStatsByMatchId = emptyMap(),
-                        history = history
+                        activeSeason = activeSeason,
+                        teams = teams.await(),
+                        players = players.await(),
+                        matches = matches.await(),
+                        legacyStatsByMatchId = legacyStats.await(),
+                        history = history.await(),
+                        fetchedAtMillis = System.currentTimeMillis()
                     )
                 }
-
-                val seasonFilter = "season = \"${escapeFilterValue(activeSeason.id)}\""
-                val teams = fetchAllRecords(
-                    collection = "ce_teams",
-                    filter = seasonFilter,
-                    sort = "name",
-                    itemParser = PocketBaseJsonParser::parseTeam
-                )
-
-                val players = fetchAllRecords(
-                    collection = "ce_players",
-                    sort = "name",
-                    itemParser = PocketBaseJsonParser::parsePlayer
-                )
-
-                val matches = fetchMatchesInternal(activeSeason.id)
-
-                val legacyStats = fetchAllRecords(
-                    collection = "ce_player_match_stats",
-                    filter = "match.season = \"${escapeFilterValue(activeSeason.id)}\"",
-                    itemParser = { PocketBaseJsonParser.parsePlayerMatchStat(it) }
-                )
-                val legacyByMatch = legacyStats.groupBy { it.match }
-
-                TournamentSnapshot(
-                    seasons = seasons,
-                    activeSeason = activeSeason,
-                    teams = teams,
-                    players = players,
-                    matches = matches,
-                    legacyStatsByMatchId = legacyByMatch,
-                    history = history,
-                    fetchedAtMillis = System.currentTimeMillis()
-                )
             }
         }
 
     override suspend fun fetchMatchesForSeason(seasonId: String): Result<List<CeMatch>> =
         withContext(Dispatchers.IO) {
-            runCatching {
+            networkResult {
                 fetchMatchesInternal(seasonId)
             }
         }
 
     override suspend fun fetchMatchScoring(matchId: String): Result<MatchScoringResult> =
         withContext(Dispatchers.IO) {
-            runCatching {
+            networkResult {
                 val safeId = CricketCalculations.encodePathSegment(matchId)
                 val url = "${baseUrl.trimEnd('/')}/api/collections/ce_matches/records/$safeId"
                     .toHttpUrl()
@@ -155,18 +163,16 @@ class PocketBaseRepository(
         }
 
     override suspend fun fetchSeasonHistory(): Result<List<CeSeasonHistory>> =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                fetchAllRecords(
-                    collection = "ce_season_history",
-                    filter = "published = true",
-                    sort = "-season_number",
-                    itemParser = PocketBaseJsonParser::parseSeasonHistory
-                )
-            }
-        }
+        withContext(Dispatchers.IO) { networkResult { loadHistory() } }
 
-    private fun fetchMatchesInternal(seasonId: String): List<CeMatch> {
+    private suspend fun loadHistory() = fetchAllRecords(
+        collection = "ce_season_history",
+        filter = "published = true",
+        sort = "-season_number",
+        itemParser = PocketBaseJsonParser::parseSeasonHistory
+    )
+
+    private suspend fun fetchMatchesInternal(seasonId: String): List<CeMatch> {
         val filter = "season = \"${escapeFilterValue(seasonId)}\" && published = true"
         return fetchAllRecords(
             collection = "ce_matches",
@@ -180,7 +186,7 @@ class PocketBaseRepository(
     /**
      * Fetches all pages from a PocketBase collection endpoint until page >= totalPages.
      */
-    fun <T> fetchAllRecords(
+    private suspend fun <T> fetchAllRecords(
         collection: String,
         filter: String? = null,
         sort: String? = null,
@@ -221,20 +227,33 @@ class PocketBaseRepository(
         return allItems
     }
 
-    private fun executeGet(url: String): String {
+    private suspend fun executeGet(url: String): String = suspendCancellableCoroutine { continuation ->
         val request = Request.Builder()
             .url(url)
             .get()
             .header("Accept", "application/json")
             .build()
 
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw IOException("HTTP ${response.code} for $url")
+        val call = client.newCall(request)
+        continuation.invokeOnCancellation { call.cancel() }
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                continuation.resumeWith(Result.failure(e))
             }
-            return response.body?.string() ?: throw IOException("Empty response body for $url")
-        }
+
+            override fun onResponse(call: Call, response: Response) {
+                continuation.resumeWith(runCatching {
+                    response.use {
+                        if (!it.isSuccessful) throw IOException("HTTP ${it.code} for $url")
+                        it.body?.string() ?: throw IOException("Empty response body for $url")
+                    }
+                })
+            }
+        })
     }
+
+    private inline fun <T> networkResult(action: () -> T): Result<T> =
+        runCatching(action).onFailure { if (it is CancellationException) throw it }
 
     private fun escapeFilterValue(value: String): String {
         return value.replace("\\", "\\\\").replace("\"", "\\\"")

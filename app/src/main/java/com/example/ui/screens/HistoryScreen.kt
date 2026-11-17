@@ -39,7 +39,7 @@ fun HistoryScreen(
             isRefreshing = uiState.isRefreshing
         )
 
-        if (uiState.errorMessage != null && uiState.hasLoadedOnce) {
+        if (uiState.errorMessage != null) {
             ConnectionErrorBanner(
                 message = uiState.errorMessage,
                 lastUpdatedDhaka = uiState.lastSuccessFormattedDhaka,

@@ -67,7 +67,7 @@ fun TeamsAndPlayersScreen(
             isRefreshing = uiState.isRefreshing
         )
 
-        if (uiState.errorMessage != null && uiState.hasLoadedOnce) {
+        if (uiState.errorMessage != null) {
             ConnectionErrorBanner(
                 message = uiState.errorMessage,
                 lastUpdatedDhaka = uiState.lastSuccessFormattedDhaka,
@@ -269,6 +269,10 @@ fun TeamDetailScreen(
             onRefresh = onRefresh,
             isRefreshing = uiState.isRefreshing
         )
+
+        if (uiState.errorMessage != null) {
+            ConnectionErrorBanner(uiState.errorMessage, uiState.lastSuccessFormattedDhaka, onRefresh)
+        }
 
         if (team == null) {
             Box(
@@ -472,7 +476,13 @@ fun PlayerProfileScreen(
     onRefresh: () -> Unit
 ) {
     val player = uiState.players.firstOrNull { it.id == playerId }
-        ?: CePlayer(id = playerId, name = playerId)
+    if (player == null) {
+        Column(Modifier.fillMaxSize()) {
+            CrickTopHeader(title = "Player unavailable", onBack = onBack, onRefresh = onRefresh)
+            Text("This player is unavailable. Refresh to load the latest records.", Modifier.padding(24.dp))
+        }
+        return
+    }
 
     val summary = remember(player, uiState.teams, uiState.matches, uiState.legacyStatsByMatchId) {
         CricketCalculations.computePlayerProfile(
@@ -494,6 +504,10 @@ fun PlayerProfileScreen(
             onRefresh = onRefresh,
             isRefreshing = uiState.isRefreshing
         )
+
+        if (uiState.errorMessage != null) {
+            ConnectionErrorBanner(uiState.errorMessage, uiState.lastSuccessFormattedDhaka, onRefresh)
+        }
 
         LazyColumn(
             modifier = Modifier
