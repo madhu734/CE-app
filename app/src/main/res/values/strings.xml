@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Crick English</string>
+    <string name="tournament_subtitle">Department of English Cricket Tournament</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_teams_players">Teams &amp; Players</string>
+    <string name="nav_points_stats">Points &amp; Stats</string>
+    <string name="nav_history">History</string>
+    <string name="filter_all_matches">All matches</string>
+    <string name="filter_fixtures">Fixtures</string>
+    <string name="filter_results">Results</string>
+    <string name="status_upcoming">Upcoming</string>
+    <string name="status_live">Live</string>
+    <string name="status_result">Result</string>
+    <string name="status_abandoned">Abandoned</string>
+    <string name="stage_league">League</string>
+    <string name="stage_semifinal">Semi-final</string>
+    <string name="stage_final">Final</string>
+    <string name="stage_friendly">Friendly</string>
+    <string name="tab_scorecard">Scorecard</string>
+    <string name="tab_squads">Squads</string>
+    <string name="tab_points_table">Points Table</string>
+    <string name="tab_tournament_stats">Tournament Stats</string>
+    <string name="refresh_score">Refresh score</string>
+    <string name="retry">Retry</string>
+    <string name="innings_ended_early">Innings ended early</string>
+    <string name="min_10_balls_faced">Minimum 10 balls faced</string>
+    <string name="ball_by_ball">Ball by ball</string>
+    <string name="innings_comparison">Innings comparison</string>
+</resources>

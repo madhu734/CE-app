@@ -1,0 +1,6 @@
+{
+  "name": "Crick English",
+  "description": "Spectator app for the Department of English cricket tournament with live scores, ball-by-ball replay, teams, player stats, standings, and season archives.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
