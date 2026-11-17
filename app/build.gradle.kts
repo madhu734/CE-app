@@ -8,6 +8,12 @@ val releaseKeyPath = providers.environmentVariable("KEYSTORE_PATH").orNull
 val releaseStorePassword = providers.environmentVariable("STORE_PASSWORD").orNull
 val releaseKeyPassword = providers.environmentVariable("KEY_PASSWORD").orNull
 val hasReleaseKey = listOf(releaseKeyPath, releaseStorePassword, releaseKeyPassword).all { !it.isNullOrBlank() }
+val releaseKeyAlias = providers.environmentVariable("KEY_ALIAS").getOrElse("upload")
+val appVersionCode = providers.environmentVariable("APP_VERSION_CODE").map {
+    it.toIntOrNull()?.takeIf { code -> code in 1..2_100_000_000 }
+        ?: error("APP_VERSION_CODE must be a positive Android version code")
+}.getOrElse(2)
+val appBuildNumber = providers.environmentVariable("APP_BUILD_NUMBER").orNull
 val studioDebugKey = rootProject.file("debug.keystore")
 
 android {
@@ -18,8 +24,8 @@ android {
         applicationId = "org.crickenglish.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = appVersionCode
+        versionName = "1.1" + (appBuildNumber?.let { ".$it" } ?: "")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -36,7 +42,7 @@ android {
             create("release") {
                 storeFile = file(checkNotNull(releaseKeyPath))
                 storePassword = releaseStorePassword
-                keyAlias = "upload"
+                keyAlias = releaseKeyAlias
                 keyPassword = releaseKeyPassword
             }
         }
@@ -61,6 +67,7 @@ android {
 
 tasks.withType<Test>().configureEach {
     systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2")
+    systemProperty("crickEnglish.liveApi", providers.gradleProperty("liveApi").getOrElse("false"))
 }
 
 kotlin {

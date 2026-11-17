@@ -17,3 +17,7 @@ local.properties
 .env
 debug.keystore
 /Crick-English.apk
+*.jks
+*.keystore
+/release/
+/app-release.apk

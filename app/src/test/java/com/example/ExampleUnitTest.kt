@@ -331,6 +331,7 @@ class ExampleUnitTest {
 
     @Test
     fun `live PocketBase API contract verification`() = runBlocking {
+        org.junit.Assume.assumeTrue("Enable the live API check with -PliveApi=true", java.lang.Boolean.getBoolean("crickEnglish.liveApi"))
         val repo = PocketBaseRepository()
         val result = repo.fetchFullTournament()
         assertTrue("Expected live PocketBase fetch to succeed: ${result.exceptionOrNull()}", result.isSuccess)
