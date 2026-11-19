@@ -174,6 +174,28 @@ fun MatchDetailScreen(
             }
 
             if (selectedTab == 0) {
+                val awarded = playerMap[match.playerOfMatch].takeIf { match.status == "completed" }
+                if (awarded != null) {
+                    item(key = "player_of_match") {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().clickable { onPlayerClick(awarded.id) },
+                            colors = CardDefaults.cardColors(containerColor = GoldAmberBg),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                                PlayerAvatar(awarded, size = 48.dp)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text("Player of the Match", style = MaterialTheme.typography.labelLarge, color = TextSecondarySlate)
+                                    Text(awarded.name, style = MaterialTheme.typography.titleMedium, color = TextPrimarySlate)
+                                    resolvedPlayerStats.firstOrNull { it.player == awarded.id }?.let {
+                                        Text("${it.runs} runs · ${it.wickets} wickets", style = MaterialTheme.typography.bodySmall, color = TextSecondarySlate)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 // Recent deliveries strip (up to 20 chronological)
                 val recentDeliveries = match.scorecard?.recent?.takeLast(20) ?: emptyList()
                 if (recentDeliveries.isNotEmpty()) {

@@ -49,7 +49,7 @@ class PocketBaseRepository(
 
     companion object {
         const val MATCH_LIST_FIELDS =
-            "id,season,team_a,team_b,starts_at,stage,overs,status,published,winner,scorecard,updated"
+            "id,season,team_a,team_b,starts_at,stage,overs,status,published,winner,player_of_match,scorecard,updated"
         const val MATCH_SCORING_FIELDS = "id,scoring,updated"
 
         fun defaultOkHttpClient(): OkHttpClient {

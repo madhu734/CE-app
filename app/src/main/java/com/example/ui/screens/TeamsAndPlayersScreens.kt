@@ -363,6 +363,9 @@ fun TeamDetailScreen(
             }
 
             item(key = "squad_heading") {
+                GraphicCardActions(team.name, "Team", Modifier.fillMaxWidth().padding(bottom = 12.dp)) { context ->
+                    renderTeamCard(context, team, squad, uiState.activeSeason?.name.orEmpty())
+                }
                 Text(
                     text = "Full Squad (${squad.size})",
                     style = MaterialTheme.typography.titleMedium,
@@ -617,7 +620,11 @@ fun PlayerProfileScreen(
                 }
             }
 
-            // Batting Summary & Match-by-match table
+            item(key = "player_graphic_card") {
+                GraphicCardActions(player.name, "Player", Modifier.fillMaxWidth()) { context ->
+                    renderPlayerCard(context, player, summary.team, uiState.activeSeason?.name.orEmpty())
+                }
+            }
             item(key = "player_batting_section") {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = ScorecardWhite),

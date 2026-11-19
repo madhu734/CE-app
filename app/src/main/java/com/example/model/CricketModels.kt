@@ -50,7 +50,8 @@ data class CeMatch(
     val winner: String = "",
     val scorecard: CeScorecard? = null,
     val updated: String = "",
-    val scoring: CeScoringLog? = null
+    val scoring: CeScoringLog? = null,
+    val playerOfMatch: String = ""
 )
 
 data class CeScorecard(

@@ -78,7 +78,8 @@ object PocketBaseJsonParser {
             winner = obj.optCleanString("winner"),
             scorecard = scorecardObj?.let { parseScorecard(it, obj.optCleanString("id")) },
             updated = obj.optCleanString("updated"),
-            scoring = scoringObj?.let { parseScoringLog(it) }
+            scoring = scoringObj?.let { parseScoringLog(it) },
+            playerOfMatch = obj.optCleanString("player_of_match")
         )
     }
 
