@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
@@ -129,9 +128,19 @@ fun GraphicCardActions(
     }
 }
 
-private val gold = Color.rgb(239, 213, 152)
-private val pale = Color.rgb(181, 196, 220)
-private val panel = Color.rgb(34, 51, 78)
+private val ink = Color.rgb(16, 25, 40)
+private val gold = Color.rgb(242, 207, 132)
+private val paper = Color.rgb(247, 241, 229)
+private val pale = Color.rgb(197, 209, 227)
+private val mutedInk = Color.rgb(57, 74, 97)
+private val accents = intArrayOf(0xff315989.toInt(), 0xff285e55.toInt(), 0xff624179.toInt(), 0xff863f46.toInt())
+
+private fun teamAccent(team: CeTeam?): Int {
+    val color = team?.color.orEmpty()
+    if (color.matches(Regex("#[0-9a-fA-F]{6}"))) return Color.parseColor(color)
+    val hash = team?.name.orEmpty().codePoints().toArray().fold(0) { total, codePoint -> total * 31 + codePoint }
+    return accents[hash and 3]
+}
 
 private suspend fun Context.cardPhoto(collection: String, id: String, file: String, size: Int): Bitmap? {
     val url = CricketCalculations.buildFileUrl(collection, id, file) ?: return null
@@ -141,28 +150,35 @@ private suspend fun Context.cardPhoto(collection: String, id: String, file: Stri
     return (loaded as? SuccessResult)?.drawable?.toBitmap()
 }
 
-private class CardArtwork(width: Int, height: Int, season: String) {
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+private class CardArtwork(private val height: Int, season: String, accent: Int) {
+    val bitmap = Bitmap.createBitmap(2160, height * 2, Bitmap.Config.ARGB_8888)
     private val canvas = Canvas(bitmap)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private val displayTypeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+    private val bodyTypeface = Typeface.create("sans-serif", Typeface.BOLD)
 
     init {
+        canvas.scale(2f, 2f)
         paint.shader = LinearGradient(
-            0f, 0f, width.toFloat(), height.toFloat(),
-            intArrayOf(Color.rgb(38, 63, 97), Color.rgb(16, 27, 48), Color.rgb(10, 18, 34)),
-            floatArrayOf(0f, .52f, 1f), Shader.TileMode.CLAMP
+            0f, height.toFloat(), 1080f, 0f,
+            intArrayOf(0xff080e1b.toInt(), 0xff142238.toInt(), accent),
+            floatArrayOf(0f, .57f, 1f), Shader.TileMode.CLAMP
         )
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+        canvas.drawRect(0f, 0f, 1080f, height.toFloat(), paint)
         paint.shader = null
-        paint.color = gold
-        canvas.drawRect(0f, 0f, width.toFloat(), 12f, paint)
-        text("CRICK ENGLISH", 84, 103, width / 2, 34, gold)
-        text(season, width - 84, 103, width / 2 - 100, 32, pale, bold = false, align = Paint.Align.RIGHT)
+        paint.color = 0x14ffffff
+        paint.strokeWidth = 1f
+        for (x in 500..1900 step 40) {
+            canvas.drawLine(x.toFloat(), 0f, (x - 840).toFloat(), height.toFloat(), paint)
+        }
+        box(0, 0, 1080, 7, 0f, gold)
+        text("CRICK ENGLISH", 54, 71, 480, 39, display = true)
+        text(season.uppercase(), 1026, 71, 395, 23, gold, align = Paint.Align.RIGHT)
     }
 
     fun text(value: String, x: Int, y: Int, width: Int, size: Int, color: Int = Color.WHITE,
-             bold: Boolean = true, align: Paint.Align = Paint.Align.LEFT) {
-        paint.typeface = Typeface.create("sans-serif", if (bold) Typeface.BOLD else Typeface.NORMAL)
+             display: Boolean = false, align: Paint.Align = Paint.Align.LEFT) {
+        paint.typeface = if (display) displayTypeface else bodyTypeface
         paint.textSize = size.toFloat()
         val measured = paint.measureText(value)
         if (measured > width) paint.textSize *= width / measured
@@ -171,68 +187,127 @@ private class CardArtwork(width: Int, height: Int, season: String) {
         canvas.drawText(value, x.toFloat(), y.toFloat(), paint)
     }
 
-    fun box(x: Int, y: Int, width: Int, height: Int, radius: Float, color: Int = panel) {
+    fun box(x: Int, y: Int, width: Int, height: Int, radius: Float, color: Int) {
         paint.color = color
         canvas.drawRoundRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat(), radius, radius, paint)
     }
 
-    fun photo(image: Bitmap?, name: String, x: Int, y: Int, size: Int, radius: Float) {
-        box(x, y, size, size, radius)
+    fun picture(image: Bitmap?, initials: String, x: Int, y: Int, width: Int,
+                height: Int, radius: Float, contain: Boolean = false) {
+        box(x, y, width, height, radius, if (contain) Color.WHITE else 0xff293b55.toInt())
         if (image == null) {
-            text(CricketCalculations.playerInitials(name), x + size / 2, y + size * 65 / 100,
-                size, size / 3, gold, align = Paint.Align.CENTER)
+            val size = (minOf(width, height) * if (contain) .32 else .39).toInt()
+            if (contain) {
+                val center = x + width / 2f
+                val shield = Path().apply {
+                    moveTo(center - 39f, y + 28f)
+                    lineTo(center + 39f, y + 28f)
+                    lineTo(center + 35f, y + 87f)
+                    lineTo(center, y + 111f)
+                    lineTo(center - 35f, y + 87f)
+                    close()
+                }
+                paint.color = ink
+                canvas.drawPath(shield, paint)
+            }
+            val baseline = y + height / 2 + (size * .32).toInt() - if (contain) 5 else 0
+            text(initials, x + width / 2, baseline, if (contain) 65 else width * 8 / 10,
+                size, gold, display = true, align = Paint.Align.CENTER)
             return
         }
-        val destination = RectF(x.toFloat(), y.toFloat(), (x + size).toFloat(), (y + size).toFloat())
-        val crop = Path().apply { addRoundRect(destination, radius, radius, Path.Direction.CW) }
-        val side = minOf(image.width, image.height)
-        val left = (image.width - side) / 2
-        val top = (image.height - side) / 2
+        val bounds = RectF(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat())
+        val crop = Path().apply { addRoundRect(bounds, radius, radius, Path.Direction.CW) }
+        val scaleX = width.toFloat() / image.width
+        val scaleY = height.toFloat() / image.height
+        val scale = if (contain) .79f * minOf(scaleX, scaleY) else maxOf(scaleX, scaleY)
+        val w = image.width * scale
+        val h = image.height * scale
+        val left = x + (width - w) / 2
+        val top = y + (height - h) * if (contain) .5f else .35f
         canvas.save()
         canvas.clipPath(crop)
-        canvas.drawBitmap(image, Rect(left, top, left + side, top + side), destination, paint)
+        canvas.drawBitmap(image, null, RectF(left, top, left + w, top + h), paint)
         canvas.restore()
+    }
+
+    fun footer() {
+        box(54, height - 65, 972, 1, 0f, 0x55ffffff)
+        text("crickenglish.enggames.tech", 54, height - 32, 972, 19, pale)
     }
 }
 
 suspend fun renderPlayerCard(context: Context, player: CePlayer, team: CeTeam?, season: String): Bitmap {
-    val card = CardArtwork(1600, 2000, season)
-    card.photo(context.cardPhoto(player.collectionId, player.id, player.photo, 1400), player.name, 200, 165, 1200, 52f)
-    card.text(player.name, 800, 1544, 1432, 112, align = Paint.Align.CENTER)
+    val accent = teamAccent(team)
+    val card = CardArtwork(1350, season, accent)
+    val (portrait, logo) = coroutineScope {
+        val portrait = async { context.cardPhoto(player.collectionId, player.id, player.photo, 1900) }
+        val logo = async { team?.let { context.cardPhoto(it.collectionId, it.id, it.logo, 360) } }
+        portrait.await() to logo.await()
+    }
+    card.picture(portrait, CricketCalculations.playerInitials(player.name), 54, 110, 972, 795, 28f)
+    card.box(54, 857, 972, 398, 28f, paper)
+    card.box(88, 895, 7, 56, 3f, accent)
+    card.text(team?.name?.uppercase() ?: "PLAYER PROFILE", 112, 939, if (team == null) 850 else 704, 53, ink, display = true)
+    if (team != null) {
+        card.picture(logo, team.shortName.ifBlank { CricketCalculations.playerInitials(team.name) }, 837, 882, 154, 142, 18f, contain = true)
+    }
+    card.box(88, 1037, 904, 2, 0f, 0x30101928)
+    card.text(player.name.uppercase(), 88, 1143, 904, 98, ink, display = true)
     val meta = listOfNotNull(player.role.takeIf { it.isNotBlank() },
         player.batch.takeIf { it.isNotBlank() }?.let { "Batch $it" })
-    card.text(meta.joinToString("  ·  "), 800, 1654, 1432, 56, gold, align = Paint.Align.CENTER)
-    if (team != null) {
-        card.text(team.name, 800, 1762, 1432, 52, pale, bold = false, align = Paint.Align.CENTER)
-    }
-    card.box(744, 1856, 112, 6, 0f, gold)
+    card.text(meta.joinToString("    /    "), 90, 1208, 900, 27, mutedInk)
+    card.footer()
     return card.bitmap
 }
 
 suspend fun renderTeamCard(context: Context, team: CeTeam, players: List<CePlayer>, season: String): Bitmap {
-    val card = CardArtwork(1920, maxOf(1080, 334 + (players.size + 1) / 2 * 122), season)
-    card.photo(context.cardPhoto(team.collectionId, team.id, team.logo, 160), team.name, 84, 139, 130, 24f)
-    card.text(team.name, 242, 216, 1594, 85)
-    val subtitle = listOfNotNull("SQUAD · ${players.size}", team.ownerName.takeIf { it.isNotBlank() }?.let { "Owner: $it" })
-    card.text(subtitle.joinToString("   |   "), 245, 269, 1591, 32, gold)
+    val columns = when (players.size) {
+        in 0..4 -> players.size.coerceIn(1, 2)
+        in 5..9 -> 3
+        else -> 4
+    }
+    val rows = (players.size + columns - 1) / columns
+    val tileWidth = (972 - (columns - 1) * 16) / columns
+    val tileHeight = when (rows) {
+        0, 1 -> 892
+        2 -> 446
+        else -> 291
+    }
+    val height = maxOf(1350, 399 + rows * (tileHeight + 16))
+    val card = CardArtwork(height, season, teamAccent(team))
+    card.box(54, 111, 972, 182, 23f, paper)
+    val logo = context.cardPhoto(team.collectionId, team.id, team.logo, 360)
+    card.picture(logo, team.shortName.ifBlank { CricketCalculations.playerInitials(team.name) }, 76, 132, 138, 138, 16f, contain = true)
+    card.text(team.name.uppercase(), 244, 214, 750, 77, ink, display = true)
+    val count = "${players.size} " + if (players.size == 1) "PLAYER" else "PLAYERS"
+    val subtitle = listOfNotNull("SQUAD", count, team.ownerName.trim().takeIf { it.isNotEmpty() })
+    card.text(subtitle.joinToString("   /   "), 247, 259, 747, 22, mutedInk)
     for (group in players.withIndex().chunked(4)) {
         val photos = coroutineScope {
             group.map { (_, player) ->
-                async { context.cardPhoto(player.collectionId, player.id, player.photo, 104) }
+                async { context.cardPhoto(player.collectionId, player.id, player.photo, maxOf(tileWidth, tileHeight) * 2) }
             }.awaitAll()
         }
         group.zip(photos).forEach { (entry, photo) ->
             val (i, player) = entry
-            val x = 84 + i % 2 * 888
-            val y = 310 + i / 2 * 122
-            card.box(x, y, 864, 106, 15f)
-            card.photo(photo, player.name, x + 12, y + 12, 82, 12f)
-            card.text(player.name, x + 114, y + 48, 723, 35)
+            val row = i / columns
+            val rowCount = minOf(columns, players.size - row * columns)
+            val x = 54 + (columns - rowCount) * (tileWidth + 16) / 2 + i % columns * (tileWidth + 16)
+            val y = 322 + row * (tileHeight + 16)
+            val textHeight = if (tileWidth >= 400) 95 else 67
+            val strip = y + tileHeight - textHeight
+            card.picture(photo, CricketCalculations.playerInitials(player.name), x, y, tileWidth, tileHeight, 14f)
+            card.box(x, strip, tileWidth, textHeight, 12f, 0xff101a2c.toInt())
+            card.box(x + 12, strip + 13, 3, textHeight - 26, 1f, gold)
+            card.text(player.name, x + 24, strip + textHeight * 48 / 100,
+                tileWidth - 38, if (tileWidth >= 400) 37 else 28, display = true)
             val meta = listOfNotNull(player.role.takeIf { it.isNotBlank() },
                 player.batch.takeIf { it.isNotBlank() }?.let { "Batch $it" })
-            card.text(meta.joinToString("  ·  "), x + 114, y + 83, 723, 24, pale, bold = false)
+            card.text(meta.joinToString(" · "), x + 24, strip + textHeight * 79 / 100,
+                tileWidth - 38, if (tileWidth >= 400) 20 else 14, pale)
         }
     }
-    if (players.isEmpty()) card.text("Squad pending", 84, 418, 1752, 42, pale)
+    if (players.isEmpty()) card.text("Squad pending", 54, 400, 972, 42, pale, display = true)
+    card.footer()
     return card.bitmap
 }
