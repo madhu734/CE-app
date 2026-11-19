@@ -20,6 +20,16 @@ import kotlin.math.abs
 class ExampleUnitTest {
 
     @Test
+    fun `team owner fields are optional and remain separate from player data`() {
+        val team = PocketBaseJsonParser.parseTeam(JSONObject("""{"id":"t1","name":"Team A","owner_name":"Owner A","owner_photo":"owner.png"}"""))
+        assertEquals("Owner A", team.ownerName)
+        assertEquals("owner.png", team.ownerPhoto)
+        val legacy = PocketBaseJsonParser.parseTeam(JSONObject("""{"id":"t2","name":"Team B"}"""))
+        assertEquals("", legacy.ownerName)
+        assertEquals("", legacy.ownerPhoto)
+    }
+
+    @Test
     fun `history parses optional captains and photo and accepts older records`() {
         val updated = PocketBaseJsonParser.parseSeasonHistory(JSONObject("""
             {

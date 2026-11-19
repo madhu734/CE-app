@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.SubcomposeAsyncImage
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Groups
@@ -323,6 +327,36 @@ fun TeamDetailScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = TextSecondarySlate
                             )
+                        }
+                    }
+                }
+            }
+
+            if (team.ownerName.isNotBlank() || team.ownerPhoto.isNotBlank()) {
+                item(key = "team_owner") {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = ScorecardWhite),
+                        border = BorderStroke(1.dp, DividerSlate),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            val photoUrl = CricketCalculations.buildFileUrl(team.collectionId, team.id, team.ownerPhoto)
+                            if (photoUrl != null) {
+                                SubcomposeAsyncImage(
+                                    model = "$photoUrl?thumb=256x256",
+                                    contentDescription = "${team.ownerName.ifBlank { "Team owner" }} photo",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.size(56.dp).clip(CircleShape),
+                                    loading = { Icon(Icons.Default.Person, contentDescription = null) },
+                                    error = { Icon(Icons.Default.Person, contentDescription = null) }
+                                )
+                                Spacer(Modifier.width(14.dp))
+                            }
+                            Column {
+                                Text("TEAM OWNER", style = MaterialTheme.typography.labelSmall, color = TextSecondarySlate)
+                                Text(team.ownerName.ifBlank { "Team owner" }, style = MaterialTheme.typography.titleMedium, color = TextPrimarySlate)
+                            }
                         }
                     }
                 }

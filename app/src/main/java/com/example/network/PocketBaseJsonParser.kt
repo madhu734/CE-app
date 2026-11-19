@@ -44,7 +44,9 @@ object PocketBaseJsonParser {
             name = obj.optCleanString("name"),
             shortName = obj.optCleanString("short_name"),
             color = obj.optCleanString("color"),
-            logo = obj.optCleanString("logo")
+            logo = obj.optCleanString("logo"),
+            ownerName = obj.optCleanString("owner_name"),
+            ownerPhoto = obj.optCleanString("owner_photo")
         )
     }
 

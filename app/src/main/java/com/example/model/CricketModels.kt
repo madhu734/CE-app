@@ -22,7 +22,9 @@ data class CeTeam(
     val name: String = "",
     val shortName: String = "",
     val color: String = "",
-    val logo: String = ""
+    val logo: String = "",
+    val ownerName: String = "",
+    val ownerPhoto: String = ""
 )
 
 data class CePlayer(
