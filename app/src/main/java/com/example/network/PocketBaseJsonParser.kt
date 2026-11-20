@@ -169,7 +169,8 @@ object PocketBaseJsonParser {
             currentBatters = battersList,
             currentBowler = bowlerStr,
             playingSides = playingSidesList,
-            playerStats = playerStatsList
+            playerStats = playerStatsList,
+            superOver = obj.optJSONObject("superOver")?.let { parseScorecard(it, matchId) }
         )
     }
 

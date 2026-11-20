@@ -314,6 +314,13 @@ suspend fun renderPlayerCard(context: Context, player: CePlayer, team: CeTeam?, 
 }
 
 suspend fun renderTeamCard(context: Context, team: CeTeam, players: List<CePlayer>, season: String): Bitmap {
+    val captain = players.find { it.id == team.captain }
+    val leadership = listOf(
+        Triple("OWNER", team.ownerName.trim(), team.ownerPhoto),
+        Triple("MANAGER", team.managerName.trim(), team.managerPhoto),
+        Triple("CAPTAIN", captain?.name.orEmpty(), captain?.photo.orEmpty())
+    ).filter { (_, name, _) -> name.isNotEmpty() }
+    val gridTop = if (leadership.isEmpty()) 322 else 448
     val columns = when (players.size) {
         in 0..4 -> players.size.coerceIn(1, 2)
         in 5..9 -> 3
@@ -326,7 +333,7 @@ suspend fun renderTeamCard(context: Context, team: CeTeam, players: List<CePlaye
         2 -> 446
         else -> 291
     }
-    val height = maxOf(1350, 399 + rows * (tileHeight + 16))
+    val height = maxOf(1350, gridTop + 77 + rows * (tileHeight + 16))
     val card = CardArtwork(height, season, teamAccent(team))
     card.box(54, 111, 972, 182, 23f, paper)
     val logo = context.cardPhoto(team.collectionId, team.id, team.logo, 360)
@@ -334,8 +341,26 @@ suspend fun renderTeamCard(context: Context, team: CeTeam, players: List<CePlaye
         76, 132, 138, 138, 16f, contain = true, logoFile = team.logo)
     card.text(team.name.uppercase(), 244, 214, 750, 77, ink, display = true)
     val count = "${players.size} " + if (players.size == 1) "PLAYER" else "PLAYERS"
-    val subtitle = listOfNotNull("SQUAD", count, team.ownerName.trim().takeIf { it.isNotEmpty() })
-    card.text(subtitle.joinToString("   /   "), 247, 259, 747, 22, mutedInk)
+    card.text("SQUAD   /   $count", 247, 259, 747, 22, mutedInk)
+    if (leadership.isNotEmpty()) {
+        val columnWidth = 972 / leadership.size
+        val photos = coroutineScope {
+            leadership.map { (role, _, photo) ->
+                async {
+                    if (role == "CAPTAIN" && captain != null) context.cardPhoto(captain.collectionId, captain.id, photo, 200)
+                    else context.cardPhoto(team.collectionId, team.id, photo, 200)
+                }
+            }.awaitAll()
+        }
+        leadership.zip(photos).forEachIndexed { index, (person, photo) ->
+            val (role, name) = person
+            val x = 54 + columnWidth * index
+            card.box(x, 311, columnWidth - 8, 108, 14f, ink)
+            card.picture(photo, CricketCalculations.playerInitials(name), x + 12, 323, 77, 84, 10f)
+            card.text(role, x + 103, 352, columnWidth - 122, 17, gold)
+            card.text(name, x + 103, 389, columnWidth - 122, 31, display = true)
+        }
+    }
     for (group in players.withIndex().chunked(4)) {
         val photos = coroutineScope {
             group.map { (_, player) ->
@@ -347,13 +372,13 @@ suspend fun renderTeamCard(context: Context, team: CeTeam, players: List<CePlaye
             val row = i / columns
             val rowCount = minOf(columns, players.size - row * columns)
             val x = 54 + (columns - rowCount) * (tileWidth + 16) / 2 + i % columns * (tileWidth + 16)
-            val y = 322 + row * (tileHeight + 16)
+            val y = gridTop + row * (tileHeight + 16)
             val textHeight = if (tileWidth >= 400) 95 else 67
             val strip = y + tileHeight - textHeight
             card.picture(photo, CricketCalculations.playerInitials(player.name), x, y, tileWidth, tileHeight, 14f)
             card.box(x, strip, tileWidth, textHeight, 12f, 0xff101a2c.toInt())
             card.box(x + 12, strip + 13, 3, textHeight - 26, 1f, gold)
-            card.text(player.name, x + 24, strip + textHeight * 48 / 100,
+            card.text(player.name + if (player.id == team.captain) " (C)" else "", x + 24, strip + textHeight * 48 / 100,
                 tileWidth - 38, if (tileWidth >= 400) 37 else 28, display = true)
             val meta = listOfNotNull(player.role.takeIf { it.isNotBlank() },
                 player.batch.takeIf { it.isNotBlank() }?.let { "Batch $it" })
@@ -361,7 +386,7 @@ suspend fun renderTeamCard(context: Context, team: CeTeam, players: List<CePlaye
                 tileWidth - 38, if (tileWidth >= 400) 20 else 14, pale)
         }
     }
-    if (players.isEmpty()) card.text("Squad pending", 54, 400, 972, 42, pale, display = true)
+    if (players.isEmpty()) card.text("Squad pending", 54, gridTop + 78, 972, 42, pale, display = true)
     card.footer()
     return card.bitmap
 }

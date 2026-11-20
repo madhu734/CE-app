@@ -64,7 +64,8 @@ data class CeScorecard(
     val currentBatters: List<String> = emptyList(),
     val currentBowler: String? = null,
     val playingSides: List<CePlayingSide> = emptyList(),
-    val playerStats: List<PlayerMatchStat>? = null
+    val playerStats: List<PlayerMatchStat>? = null,
+    val superOver: CeScorecard? = null
 )
 
 data class CeInnings(

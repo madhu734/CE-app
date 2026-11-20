@@ -278,6 +278,28 @@ fun MatchDetailScreen(
                     }
                 }
 
+                val superOver = match.scorecard?.superOver
+                if (superOver != null) {
+                    item(key = "super_over_heading") {
+                        Text("Super Over", style = MaterialTheme.typography.titleLarge, color = TextPrimarySlate)
+                    }
+                    for (innings in superOver.innings) {
+                        val opponentId = if (innings.team == match.teamA) match.teamB else match.teamA
+                        val figures = superOver.playerStats.orEmpty()
+                        item(key = "super_over_${innings.team}") {
+                            TeamInningsScorecardSection(
+                                battingTeam = teamMap[innings.team],
+                                battingTeamFallback = innings.team,
+                                bowlingTeam = teamMap[opponentId],
+                                innings = innings,
+                                batters = figures.filter { it.team == innings.team && it.batted },
+                                bowlers = figures.filter { it.team == opponentId && (it.ballsBowled > 0 || it.runsConceded > 0 || it.wickets > 0) },
+                                playerMap = playerMap,
+                                onPlayerClick = onPlayerClick
+                            )
+                        }
+                    }
+                }
                 val replayed = scoringState.replayed
                 // Load replay only for matches with a published scorecard.
                 if (match.scorecard != null) item(key = "ball_by_ball_section") {

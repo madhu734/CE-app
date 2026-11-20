@@ -59,7 +59,7 @@ fun TeamsAndPlayersScreen(
         else uiState.players.filter {
             it.name.lowercase(Locale.US).contains(q) ||
                 it.role.lowercase(Locale.US).contains(q) ||
-                it.batch.lowercase(Locale.US).contains(q)
+                it.batch == q
         }
     }
 
