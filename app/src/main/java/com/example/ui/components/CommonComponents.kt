@@ -194,7 +194,7 @@ fun TeamCrestAvatar(
             modifier = modifier
                 .size(size)
                 .clip(RoundedCornerShape(size / 5))
-                .background(Color.White)
+                .background(Color(teamLogoBackground(team?.logo)))
                 .padding(3.dp),
             loading = { fallbackBox() },
             error = { fallbackBox() }

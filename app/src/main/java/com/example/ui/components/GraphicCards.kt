@@ -163,6 +163,13 @@ internal fun teamLogoFrame(file: String?) = when (file) {
     else -> null
 }
 
+internal fun teamLogoBackground(file: String?) = when {
+    file.orEmpty().startsWith("phoenix_") -> 0xff080808.toInt()
+    file.orEmpty().startsWith("raptors_") -> 0xff09182b.toInt()
+    file.orEmpty().startsWith("whk_") -> 0xff12334e.toInt()
+    else -> Color.WHITE
+}
+
 private fun teamAccent(team: CeTeam?): Int {
     val color = team?.color.orEmpty()
     if (color.matches(Regex("#[0-9a-fA-F]{6}"))) return Color.parseColor(color)
@@ -222,7 +229,7 @@ private class CardArtwork(private val height: Int, season: String, accent: Int) 
 
     fun picture(image: Bitmap?, initials: String, x: Int, y: Int, width: Int,
                 height: Int, radius: Float, contain: Boolean = false, logoFile: String? = null) {
-        box(x, y, width, height, radius, if (contain) Color.WHITE else 0xff293b55.toInt())
+        box(x, y, width, height, radius, if (contain) teamLogoBackground(logoFile) else 0xff293b55.toInt())
         if (image == null) {
             val size = (minOf(width, height) * if (contain) .32 else .39).toInt()
             if (contain) {
