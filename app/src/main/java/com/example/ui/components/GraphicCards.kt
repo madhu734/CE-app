@@ -157,9 +157,9 @@ internal data class LogoFrame(val top: Int, val right: Int, val bottom: Int, val
 // Remove the extra background in these specific files. Replacement artwork uses its full image.
 internal fun teamLogoFrame(file: String?) = when (file) {
     "lords_2ammq9i5i4.PNG" -> LogoFrame(29, 22, 39, 22)
-    "phoenix_kbp1s68715.png" -> LogoFrame(10, 18, 10, 18)
-    "raptors_aql7zc18fu.jpeg" -> LogoFrame(5, 28, 7, 28)
-    "whk_k4z8x9vhqq.jpeg" -> LogoFrame(8, 10, 9, 10)
+    "phoenix_kbp1s68715.png" -> LogoFrame(5, 14, 0, 14)
+    "raptors_aql7zc18fu.jpeg" -> LogoFrame(2, 24, 0, 24)
+    "whk_k4z8x9vhqq.jpeg" -> LogoFrame(3, 6, 0, 6)
     else -> null
 }
 
