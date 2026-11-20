@@ -179,15 +179,22 @@ fun TeamCrestAvatar(
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(context)
                 .data(imageUrl)
+                .apply {
+                    teamLogoFrame(team?.logo)?.let { frame ->
+                        allowHardware(false)
+                        transformations(frame)
+                    }
+                }
                 .crossfade(true)
                 .memoryCachePolicy(CachePolicy.ENABLED)
                 .diskCachePolicy(CachePolicy.ENABLED)
                 .build(),
             contentDescription = "${team?.name ?: "Team"} crest",
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             modifier = modifier
                 .size(size)
-                .clip(CircleShape),
+                .clip(RoundedCornerShape(size / 5))
+                .background(Color.White),
             loading = { fallbackBox() },
             error = { fallbackBox() }
         )

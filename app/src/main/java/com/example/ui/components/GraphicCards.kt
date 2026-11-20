@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
@@ -25,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
+import coil.size.Size
+import coil.transform.Transformation
 import androidx.core.graphics.drawable.toBitmap
 import com.example.domain.CricketCalculations
 import com.example.model.CePlayer
@@ -135,6 +138,31 @@ private val pale = Color.rgb(197, 209, 227)
 private val mutedInk = Color.rgb(57, 74, 97)
 private val accents = intArrayOf(0xff315989.toInt(), 0xff285e55.toInt(), 0xff624179.toInt(), 0xff863f46.toInt())
 
+internal data class LogoFrame(val top: Int, val right: Int, val bottom: Int, val left: Int) : Transformation {
+    override val cacheKey = "team-logo-frame:$top,$right,$bottom,$left"
+
+    fun bounds(image: Bitmap) = Rect(
+        image.width * left / 100,
+        image.height * top / 100,
+        image.width - image.width * right / 100,
+        image.height - image.height * bottom / 100
+    )
+
+    override suspend fun transform(input: Bitmap, size: Size): Bitmap {
+        val frame = bounds(input)
+        return Bitmap.createBitmap(input, frame.left, frame.top, frame.width(), frame.height())
+    }
+}
+
+// Remove the extra background in these specific files. Replacement artwork uses its full image.
+internal fun teamLogoFrame(file: String?) = when (file) {
+    "lords_2ammq9i5i4.PNG" -> LogoFrame(29, 22, 39, 22)
+    "phoenix_kbp1s68715.png" -> LogoFrame(10, 18, 10, 18)
+    "raptors_aql7zc18fu.jpeg" -> LogoFrame(5, 28, 7, 28)
+    "whk_k4z8x9vhqq.jpeg" -> LogoFrame(8, 10, 9, 10)
+    else -> null
+}
+
 private fun teamAccent(team: CeTeam?): Int {
     val color = team?.color.orEmpty()
     if (color.matches(Regex("#[0-9a-fA-F]{6}"))) return Color.parseColor(color)
@@ -193,7 +221,7 @@ private class CardArtwork(private val height: Int, season: String, accent: Int) 
     }
 
     fun picture(image: Bitmap?, initials: String, x: Int, y: Int, width: Int,
-                height: Int, radius: Float, contain: Boolean = false) {
+                height: Int, radius: Float, contain: Boolean = false, logoFile: String? = null) {
         box(x, y, width, height, radius, if (contain) Color.WHITE else 0xff293b55.toInt())
         if (image == null) {
             val size = (minOf(width, height) * if (contain) .32 else .39).toInt()
@@ -217,16 +245,17 @@ private class CardArtwork(private val height: Int, season: String, accent: Int) 
         }
         val bounds = RectF(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + height).toFloat())
         val crop = Path().apply { addRoundRect(bounds, radius, radius, Path.Direction.CW) }
-        val scaleX = width.toFloat() / image.width
-        val scaleY = height.toFloat() / image.height
-        val scale = if (contain) .79f * minOf(scaleX, scaleY) else maxOf(scaleX, scaleY)
-        val w = image.width * scale
-        val h = image.height * scale
+        val source = teamLogoFrame(logoFile)?.bounds(image) ?: Rect(0, 0, image.width, image.height)
+        val scaleX = width.toFloat() / source.width()
+        val scaleY = height.toFloat() / source.height()
+        val scale = if (contain) .88f * minOf(scaleX, scaleY) else maxOf(scaleX, scaleY)
+        val w = source.width() * scale
+        val h = source.height() * scale
         val left = x + (width - w) / 2
         val top = y + (height - h) * if (contain) .5f else .35f
         canvas.save()
         canvas.clipPath(crop)
-        canvas.drawBitmap(image, null, RectF(left, top, left + w, top + h), paint)
+        canvas.drawBitmap(image, source, RectF(left, top, left + w, top + h), paint)
         canvas.restore()
     }
 
@@ -240,22 +269,39 @@ suspend fun renderPlayerCard(context: Context, player: CePlayer, team: CeTeam?, 
     val accent = teamAccent(team)
     val card = CardArtwork(1350, season, accent)
     val (portrait, logo) = coroutineScope {
-        val portrait = async { context.cardPhoto(player.collectionId, player.id, player.photo, 1900) }
+        val portrait = async { context.cardPhoto(player.collectionId, player.id, player.photo, 1170) }
         val logo = async { team?.let { context.cardPhoto(it.collectionId, it.id, it.logo, 360) } }
         portrait.await() to logo.await()
     }
-    card.picture(portrait, CricketCalculations.playerInitials(player.name), 54, 110, 972, 795, 28f)
-    card.box(54, 857, 972, 398, 28f, paper)
-    card.box(88, 895, 7, 56, 3f, accent)
-    card.text(team?.name?.uppercase() ?: "PLAYER PROFILE", 112, 939, if (team == null) 850 else 704, 53, ink, display = true)
+    card.box(54, 110, 972, 1144, 28f, paper)
+    card.box(54, 154, 8, 150, 4f, accent)
     if (team != null) {
-        card.picture(logo, team.shortName.ifBlank { CricketCalculations.playerInitials(team.name) }, 837, 882, 154, 142, 18f, contain = true)
+        card.picture(logo, team.shortName.ifBlank { CricketCalculations.playerInitials(team.name) },
+            94, 154, 194, 150, 18f, contain = true, logoFile = team.logo)
+        card.text(team.name.uppercase(), 322, 252, 656, 75, ink, display = true)
+    } else {
+        card.text("PLAYER PROFILE", 94, 252, 892, 75, ink, display = true)
     }
-    card.box(88, 1037, 904, 2, 0f, 0x30101928)
-    card.text(player.name.uppercase(), 88, 1143, 904, 98, ink, display = true)
-    val meta = listOfNotNull(player.role.takeIf { it.isNotBlank() },
-        player.batch.takeIf { it.isNotBlank() }?.let { "Batch $it" })
-    card.text(meta.joinToString("    /    "), 90, 1208, 900, 27, mutedInk)
+    card.box(94, 345, 892, 2, 0f, 0x30101928)
+    card.text(player.name.uppercase(), 91, 479, 895, 110, ink, display = true)
+
+    card.box(94, 541, 436, 596, 24f, accent)
+    card.picture(portrait, CricketCalculations.playerInitials(player.name), 94, 541, 436, 584, 24f)
+    val details = listOf("PLAYING ROLE" to player.role.trim(), "BATCH" to player.batch.trim())
+        .filter { (_, value) -> value.isNotEmpty() }
+    if (details.isNotEmpty()) {
+        card.box(558, 541, 428, 596, 24f, ink)
+        card.box(598, 590, 50, 4, 2f, gold)
+        val firstLine = if (details.size == 2) 688 else 775
+        details.forEachIndexed { index, (label, value) ->
+            val line = firstLine + index * 212
+            card.text(label, 598, line, 348, 24, pale)
+            card.text(value.uppercase(), 595, line + 77, 351, 69, display = true)
+        }
+        if (details.size == 2) card.box(598, 815, 348, 1, 0f, 0x45ffffff)
+        card.box(598, 1088, 348, 1, 0f, 0x45ffffff)
+    }
+    card.box(94, 1194, 892, 2, 0f, 0x30101928)
     card.footer()
     return card.bitmap
 }
@@ -277,7 +323,8 @@ suspend fun renderTeamCard(context: Context, team: CeTeam, players: List<CePlaye
     val card = CardArtwork(height, season, teamAccent(team))
     card.box(54, 111, 972, 182, 23f, paper)
     val logo = context.cardPhoto(team.collectionId, team.id, team.logo, 360)
-    card.picture(logo, team.shortName.ifBlank { CricketCalculations.playerInitials(team.name) }, 76, 132, 138, 138, 16f, contain = true)
+    card.picture(logo, team.shortName.ifBlank { CricketCalculations.playerInitials(team.name) },
+        76, 132, 138, 138, 16f, contain = true, logoFile = team.logo)
     card.text(team.name.uppercase(), 244, 214, 750, 77, ink, display = true)
     val count = "${players.size} " + if (players.size == 1) "PLAYER" else "PLAYERS"
     val subtitle = listOfNotNull("SQUAD", count, team.ownerName.trim().takeIf { it.isNotEmpty() })
