@@ -90,7 +90,6 @@ fun TeamsAndPlayersScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search players by name, role, or batch…") },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
