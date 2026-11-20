@@ -426,6 +426,7 @@ fun TeamDetailScreen(
                         player = player,
                         teamColorHex = team.color,
                         teamName = null,
+                        isCaptain = player.id == team.captain,
                         onClick = { onPlayerClick(player.id) }
                     )
                 }
@@ -477,6 +478,7 @@ private fun PlayerRowCard(
     player: CePlayer,
     teamColorHex: String,
     teamName: String?,
+    isCaptain: Boolean = false,
     onClick: () -> Unit
 ) {
     Card(
@@ -502,7 +504,7 @@ private fun PlayerRowCard(
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = player.name,
+                    text = player.name + if (isCaptain) " (C)" else "",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = TextPrimarySlate

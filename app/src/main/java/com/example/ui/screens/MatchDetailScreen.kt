@@ -754,7 +754,7 @@ private fun TeamInningsScorecardSection(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = player?.name?.ifBlank { st.player } ?: st.player,
+                                text = (player?.name?.ifBlank { st.player } ?: st.player) + if (battingTeam?.captain == st.player) " (C)" else "",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                                 color = LavenderPrimary
@@ -879,7 +879,7 @@ private fun TeamInningsScorecardSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = player?.name?.ifBlank { st.player } ?: st.player,
+                            text = (player?.name?.ifBlank { st.player } ?: st.player) + if (bowlingTeam?.captain == st.player) " (C)" else "",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color = LavenderPrimary,
@@ -1540,7 +1540,7 @@ private fun MatchSquadsSection(
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = player.name,
+                                        text = player.name + if (team?.captain == player.id) " (C)" else "",
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Medium,
                                         color = TextPrimarySlate
