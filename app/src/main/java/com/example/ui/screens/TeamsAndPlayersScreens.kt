@@ -363,6 +363,33 @@ fun TeamDetailScreen(
             }
 
             item(key = "squad_heading") {
+                val captain = squad.find { it.id == team.captain }
+                if (captain != null) {
+                    Text("TEAM CAPTAIN", style = MaterialTheme.typography.labelSmall, color = TextSecondarySlate)
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
+                        PlayerAvatar(player = captain, size = 44.dp)
+                        Spacer(Modifier.width(12.dp))
+                        Text(captain.name, style = MaterialTheme.typography.titleMedium, color = TextPrimarySlate)
+                    }
+                }
+                if (team.managerName.isNotBlank() || team.managerPhoto.isNotBlank()) {
+                    Text("TEAM MANAGER", style = MaterialTheme.typography.labelSmall, color = TextSecondarySlate)
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
+                        val managerPhoto = CricketCalculations.buildFileUrl(team.collectionId, team.id, team.managerPhoto)
+                        if (managerPhoto != null) {
+                            SubcomposeAsyncImage(
+                                model = managerPhoto,
+                                contentDescription = "Team manager",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.size(44.dp).clip(CircleShape),
+                                loading = { Icon(Icons.Default.Person, contentDescription = null) },
+                                error = { Icon(Icons.Default.Person, contentDescription = null) }
+                            )
+                            Spacer(Modifier.width(12.dp))
+                        }
+                        Text(team.managerName.ifBlank { "Team manager" }, style = MaterialTheme.typography.titleMedium, color = TextPrimarySlate)
+                    }
+                }
                 GraphicCardActions(team.name, "Team", Modifier.fillMaxWidth().padding(bottom = 12.dp)) { context ->
                     renderTeamCard(context, team, squad, uiState.activeSeason?.name.orEmpty())
                 }

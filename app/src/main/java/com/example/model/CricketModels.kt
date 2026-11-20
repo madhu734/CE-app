@@ -24,7 +24,10 @@ data class CeTeam(
     val color: String = "",
     val logo: String = "",
     val ownerName: String = "",
-    val ownerPhoto: String = ""
+    val ownerPhoto: String = "",
+    val managerName: String = "",
+    val managerPhoto: String = "",
+    val captain: String = ""
 )
 
 data class CePlayer(
