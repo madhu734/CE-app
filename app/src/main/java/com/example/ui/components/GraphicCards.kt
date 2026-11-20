@@ -287,19 +287,19 @@ suspend fun renderPlayerCard(context: Context, player: CePlayer, team: CeTeam?, 
 
     card.box(94, 541, 436, 596, 24f, accent)
     card.picture(portrait, CricketCalculations.playerInitials(player.name), 94, 541, 436, 584, 24f)
-    val details = listOf("PLAYING ROLE" to player.role.trim(), "BATCH" to player.batch.trim())
-        .filter { (_, value) -> value.isNotEmpty() }
-    if (details.isNotEmpty()) {
+    val role = player.role.trim()
+    val batch = player.batch.trim()
+    if (role.isNotEmpty() || batch.isNotEmpty()) {
         card.box(558, 541, 428, 596, 24f, ink)
         card.box(598, 590, 50, 4, 2f, gold)
-        val firstLine = if (details.size == 2) 688 else 775
-        details.forEachIndexed { index, (label, value) ->
-            val line = firstLine + index * 212
-            card.text(label, 598, line, 348, 24, pale)
-            card.text(value.uppercase(), 595, line + 77, 351, 69, display = true)
+        if (role.isNotEmpty()) {
+            card.text("PLAYING ROLE", 598, 760, 348, 24, pale)
+            card.text(role.uppercase(), 595, 837, 351, 69, display = true)
         }
-        if (details.size == 2) card.box(598, 815, 348, 1, 0f, 0x45ffffff)
-        card.box(598, 1088, 348, 1, 0f, 0x45ffffff)
+        if (batch.isNotEmpty()) {
+            if (role.isNotEmpty()) card.box(598, 996, 348, 1, 0f, 0x45ffffff)
+            card.text("Batch $batch", 598, if (role.isNotEmpty()) 1052 else 849, 348, 26, pale)
+        }
     }
     card.box(94, 1194, 892, 2, 0f, 0x30101928)
     card.footer()
