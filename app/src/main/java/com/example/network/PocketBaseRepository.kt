@@ -173,7 +173,7 @@ class PocketBaseRepository(
     )
 
     private suspend fun fetchMatchesInternal(seasonId: String): List<CeMatch> {
-        val filter = "season = \"${escapeFilterValue(seasonId)}\" && published = true"
+        val filter = "season = \"${escapeFilterValue(seasonId)}\""
         return fetchAllRecords(
             collection = "ce_matches",
             filter = filter,

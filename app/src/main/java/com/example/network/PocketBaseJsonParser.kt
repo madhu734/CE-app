@@ -77,7 +77,7 @@ object PocketBaseJsonParser {
             stage = obj.optCleanString("stage"),
             overs = obj.optInt("overs", 0),
             status = obj.optCleanString("status"),
-            published = obj.optBoolean("published", false),
+            published = true,
             winner = obj.optCleanString("winner"),
             scorecard = scorecardObj?.let { parseScorecard(it, obj.optCleanString("id")) },
             updated = obj.optCleanString("updated"),

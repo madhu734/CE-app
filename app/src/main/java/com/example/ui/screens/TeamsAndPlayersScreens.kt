@@ -256,7 +256,7 @@ fun TeamDetailScreen(
     }
     val teamMatches = remember(uiState.matches, teamId) {
         uiState.matches
-            .filter { it.published && (it.teamA == teamId || it.teamB == teamId) }
+            .filter { it.teamA == teamId || it.teamB == teamId }
             .sortedWith(
                 compareBy<com.example.model.CeMatch> {
                     CricketCalculations.parsePocketBaseInstant(it.startsAt) ?: Instant.MAX

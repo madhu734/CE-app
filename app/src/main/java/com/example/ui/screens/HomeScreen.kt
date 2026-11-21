@@ -147,7 +147,7 @@ fun HomeScreen(
                 CompactCricketHeroBanner(
                     seasonTitle = seasonTitle,
                     teamCount = uiState.teams.size,
-                    matchCount = uiState.matches.count { it.published }
+                    matchCount = uiState.matches.size
                 )
             }
 
@@ -202,7 +202,7 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = when (uiState.homeMatchFilter) {
-                                    MatchFilter.ALL -> "No published matches in this season yet."
+                                    MatchFilter.ALL -> "No matches started yet. Upcoming matches are in Fixtures."
                                     MatchFilter.FIXTURES -> "No upcoming scheduled fixtures."
                                     MatchFilter.RESULTS -> "No completed or abandoned results yet."
                                 },

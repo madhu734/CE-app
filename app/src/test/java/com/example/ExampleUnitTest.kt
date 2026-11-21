@@ -129,7 +129,7 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun `single source rule never double counts embedded and legacy stats and ignores live private abandoned`() {
+    fun `single source rule counts all completed matches and ignores live and abandoned`() {
         val players = listOf(
             CePlayer(id = "p1", name = "Batter One", team = "t1"),
             CePlayer(id = "p2", name = "Batter Two", team = "t2")
@@ -169,7 +169,7 @@ class ExampleUnitTest {
             scorecard = CeScorecard(playerStats = null)
         )
 
-        // Live, private (published = false), and abandoned matches -> contribute 0 to tournament stats & boundaries
+        // Live and abandoned matches contribute no tournament statistics. All completed matches are public.
         val mLive = CeMatch(
             id = "m_live",
             status = "live",
@@ -220,14 +220,12 @@ class ExampleUnitTest {
             legacyStatsByMatchId = legacyMap
         )
 
-        // Total fours = 3 (from m1) + 0 (from m2) + 2 (from m3) = 5
-        // Total sixes = 1 (from m1) + 0 (from m2) + 1 (from m3) = 2
-        assertEquals(5, summary.totalFours)
-        assertEquals(2, summary.totalSixes)
+        assertEquals(13, summary.totalFours)
+        assertEquals(10, summary.totalSixes)
 
         val p1Row = summary.mostRuns.first { it.player.id == "p1" }
         val p2Row = summary.mostRuns.first { it.player.id == "p2" }
-        assertEquals(25, p1Row.runs)
+        assertEquals(113, p1Row.runs)
         assertEquals(15, p2Row.runs)
     }
 

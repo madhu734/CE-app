@@ -252,12 +252,13 @@ object CricketCalculations {
      * - Results shows completed and abandoned matches.
      */
     fun filterMatchesForHome(matches: List<CeMatch>, filter: MatchFilter): List<CeMatch> {
-        val published = matches.filter { it.published }
+        val published = matches
             .sortedWith(compareBy<CeMatch> { parsePocketBaseInstant(it.startsAt) ?: Instant.MAX }.thenBy { it.startsAt })
 
         return when (filter) {
             MatchFilter.ALL -> {
-                val (live, others) = published.partition { it.status.equals("live", ignoreCase = true) }
+                val (live, others) = published.filterNot { it.status.equals("scheduled", ignoreCase = true) }
+                    .partition { it.status.equals("live", ignoreCase = true) }
                 live + others
             }
             MatchFilter.FIXTURES -> {
@@ -297,7 +298,6 @@ object CricketCalculations {
         matches: List<CeMatch>
     ): List<PointsTableRow> {
         val leagueMatches = matches.filter { match ->
-            match.published &&
                 isLeagueStage(match.stage) &&
                 (match.status.equals("completed", ignoreCase = true) ||
                     match.status.equals("abandoned", ignoreCase = true))
@@ -419,7 +419,7 @@ object CricketCalculations {
         legacyStatsByMatchId: Map<String, List<PlayerMatchStat>>
     ): TournamentStatsSummary {
         val completedMatches = matches.filter {
-            it.published && it.status.equals("completed", ignoreCase = true)
+            it.status.equals("completed", ignoreCase = true)
         }
 
         val playerById = players.associateBy { it.id }
@@ -539,7 +539,7 @@ object CricketCalculations {
     ): PlayerProfileSummary {
         val teamById = teams.associateBy { it.id }
         val completedMatches = matches
-            .filter { it.published && it.status.equals("completed", ignoreCase = true) }
+            .filter { it.status.equals("completed", ignoreCase = true) }
             .sortedWith(compareBy<CeMatch> { parsePocketBaseInstant(it.startsAt) ?: Instant.MAX }.thenBy { it.startsAt })
 
         var matchCount = 0
