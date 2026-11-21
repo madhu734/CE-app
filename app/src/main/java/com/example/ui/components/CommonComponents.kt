@@ -440,7 +440,7 @@ fun CompactMatchCard(
 
             MatchTeamScoreRow(
                 team = teamA,
-                fallbackName = match.teamA.ifBlank { "Team A" },
+                fallbackName = "TBD",
                 runs = inningsA?.runs,
                 wickets = inningsA?.wickets,
                 balls = inningsA?.balls,
@@ -451,7 +451,7 @@ fun CompactMatchCard(
 
             MatchTeamScoreRow(
                 team = teamB,
-                fallbackName = match.teamB.ifBlank { "Team B" },
+                fallbackName = "TBD",
                 runs = inningsB?.runs,
                 wickets = inningsB?.wickets,
                 balls = inningsB?.balls,

@@ -60,8 +60,8 @@ fun MatchDetailScreen(
     val scoringState = uiState.scoringStatesByMatchId[matchId] ?: MatchScoringUiState(matchId = matchId)
 
     Column(modifier = Modifier.fillMaxSize()) {
-        val teamAName = teamMap[match?.teamA]?.shortName?.ifBlank { teamMap[match?.teamA]?.name } ?: "Match"
-        val teamBName = teamMap[match?.teamB]?.shortName?.ifBlank { teamMap[match?.teamB]?.name } ?: "Details"
+        val teamAName = teamMap[match?.teamA]?.shortName?.ifBlank { teamMap[match?.teamA]?.name } ?: "TBD"
+        val teamBName = teamMap[match?.teamB]?.shortName?.ifBlank { teamMap[match?.teamB]?.name } ?: "TBD"
         CrickTopHeader(
             title = if (match != null) "$teamAName vs $teamBName" else "Match Details",
             subtitle = match?.let { "${CricketCalculations.stageLabel(it.stage)} • ${it.overs} Overs" },
@@ -407,7 +407,7 @@ private fun MatchSummaryHeaderCard(
 
             DetailedInningsSummaryRow(
                 team = teamA,
-                fallbackName = match.teamA,
+                fallbackName = "TBD",
                 innings = inningsA,
                 onClick = { if (match.teamA.isNotBlank()) onTeamClick(match.teamA) }
             )
@@ -416,7 +416,7 @@ private fun MatchSummaryHeaderCard(
 
             DetailedInningsSummaryRow(
                 team = teamB,
-                fallbackName = match.teamB,
+                fallbackName = "TBD",
                 innings = inningsB,
                 onClick = { if (match.teamB.isNotBlank()) onTeamClick(match.teamB) }
             )
