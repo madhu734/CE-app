@@ -33,7 +33,8 @@ class ExampleRobolectricTest {
         val entry = CeSeasonHistory(
             id = "archive8", seasonNumber = 8, champion = "Literary Lions",
             runnerUp = "Ink Strikers", championCaptain = "Arif Hasan",
-            runnerUpCaptain = "Tanvir Islam", teamPhoto = "team.webp", published = true
+            runnerUpCaptain = "Tanvir Islam", teamPhoto = "team.webp", published = true,
+            runnerUpPhoto = "runner.webp"
         )
         val state = mutableStateOf(CricketUiState(history = listOf(entry)))
         composeTestRule.setContent {
@@ -42,16 +43,20 @@ class ExampleRobolectricTest {
         composeTestRule.onNodeWithText("Captain: Arif Hasan").assertIsDisplayed()
         composeTestRule.onNodeWithText("Captain: Tanvir Islam").assertIsDisplayed()
         composeTestRule.onNodeWithTag("history_photo_8").assertExists()
+        composeTestRule.onNodeWithTag("history_runner_up_photo_8").assertExists()
+        composeTestRule.onNodeWithText("Champion · Literary Lions").assertExists()
+        composeTestRule.onNodeWithText("Runner-up · Ink Strikers").assertExists()
 
         composeTestRule.runOnIdle {
             state.value = CricketUiState(history = listOf(entry.copy(
-                championCaptain = "", runnerUpCaptain = "   ", teamPhoto = ""
+                championCaptain = "", runnerUpCaptain = "   ", teamPhoto = "", runnerUpPhoto = ""
             )))
         }
         composeTestRule.onNodeWithText("Literary Lions").assertIsDisplayed()
         composeTestRule.onNodeWithText("Ink Strikers").assertIsDisplayed()
         composeTestRule.onNodeWithText("Captain:", substring = true).assertDoesNotExist()
         composeTestRule.onNodeWithTag("history_photo_8").assertDoesNotExist()
+        composeTestRule.onNodeWithTag("history_runner_up_photo_8").assertDoesNotExist()
     }
 
     private class FakeTournamentRepository : CricketRepository {

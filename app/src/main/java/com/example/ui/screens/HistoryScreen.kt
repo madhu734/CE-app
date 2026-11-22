@@ -33,7 +33,7 @@ fun HistoryScreen(
 ) {
     val sortedHistory = uiState.history
         .filter { it.published }
-        .sortedByDescending { it.seasonNumber }
+        .sortedWith(compareBy<CeSeasonHistory> { it.seasonNumber }.thenBy { it.edition })
 
     Column(modifier = Modifier.fillMaxSize()) {
         CrickTopHeader(
@@ -120,7 +120,7 @@ private fun SeasonHistoryCard(entry: CeSeasonHistory) {
                     shape = RoundedCornerShape(6.dp)
                 ) {
                     Text(
-                        text = "Season ${entry.seasonNumber}",
+                        text = "Season ${entry.seasonNumber}" + entry.edition.takeIf { it.isNotBlank() }?.let { " ($it)" }.orEmpty(),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = ScorecardWhite,
@@ -214,38 +214,42 @@ private fun SeasonHistoryCard(entry: CeSeasonHistory) {
                 }
             }
 
-            val photoUrl = CricketCalculations.buildFileUrl(entry.collectionId, entry.id, entry.teamPhoto)
-            if (photoUrl != null) {
-                Spacer(modifier = Modifier.height(16.dp))
-                SubcomposeAsyncImage(
-                    model = "$photoUrl?thumb=960x0",
-                    contentDescription = "Season ${entry.seasonNumber} team photo",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(4f / 3f)
-                        .clip(RoundedCornerShape(10.dp))
-                        .testTag("history_photo_${entry.seasonNumber}"),
-                    loading = {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        }
-                    },
-                    error = {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Team photo unavailable", color = TextSecondarySlate)
-                        }
-                    }
-                )
-                Text(
-                    text = "Season ${entry.seasonNumber} · Team photo",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondarySlate,
-                    modifier = Modifier.padding(top = 6.dp)
-                )
-            }
+            ArchiveTeamPhoto(entry, entry.teamPhoto, entry.champion, "Champion", "history_photo")
+            ArchiveTeamPhoto(entry, entry.runnerUpPhoto, entry.runnerUp, "Runner-up", "history_runner_up_photo")
         }
     }
+}
+
+@Composable
+private fun ArchiveTeamPhoto(entry: CeSeasonHistory, file: String, team: String, role: String, tag: String) {
+    val url = CricketCalculations.buildFileUrl(entry.collectionId, entry.id, file) ?: return
+    Spacer(modifier = Modifier.height(16.dp))
+    SubcomposeAsyncImage(
+        model = "$url?thumb=960x0",
+        contentDescription = "$team team photo, Season ${entry.seasonNumber} ${role.lowercase()}",
+        contentScale = ContentScale.Fit,
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(4f / 3f)
+            .clip(RoundedCornerShape(10.dp))
+            .testTag("${tag}_${entry.seasonNumber}"),
+        loading = {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            }
+        },
+        error = {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Team photo unavailable", color = TextSecondarySlate)
+            }
+        }
+    )
+    Text(
+        text = "$role · $team",
+        style = MaterialTheme.typography.labelSmall,
+        color = TextSecondarySlate,
+        modifier = Modifier.padding(top = 6.dp)
+    )
 }
 
 @Composable

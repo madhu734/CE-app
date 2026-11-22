@@ -122,7 +122,9 @@ data class CeSeasonHistory(
     val championCaptain: String = "",
     val runnerUpCaptain: String = "",
     val teamPhoto: String = "",
-    val published: Boolean = false
+    val published: Boolean = false,
+    val runnerUpPhoto: String = "",
+    val edition: String = ""
 )
 
 // Ball-by-ball scoring log models

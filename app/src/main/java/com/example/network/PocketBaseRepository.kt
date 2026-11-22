@@ -168,7 +168,7 @@ class PocketBaseRepository(
     private suspend fun loadHistory() = fetchAllRecords(
         collection = "ce_season_history",
         filter = "published = true",
-        sort = "-season_number",
+        sort = "season_number,edition",
         itemParser = PocketBaseJsonParser::parseSeasonHistory
     )
 
