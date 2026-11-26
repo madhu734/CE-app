@@ -198,7 +198,16 @@ object PocketBaseJsonParser {
             extras = extras,
             extrasBreakdown = breakdown,
             endedEarly = obj.optBoolean("endedEarly", false),
-            adjustedRuns = adjustedRuns
+            adjustedRuns = adjustedRuns,
+            fallOfWickets = obj.optJSONArray("fallOfWickets")?.let { entries ->
+                (0 until entries.length()).mapNotNull { index ->
+                    val entry = entries.optJSONObject(index) ?: return@mapNotNull null
+                    CeFallOfWicket(
+                        wicket = entry.optInt("wicket"), runs = entry.optInt("runs"),
+                        player = entry.optCleanString("player"), balls = entry.optInt("balls")
+                    )
+                }
+            } ?: emptyList()
         )
     }
 

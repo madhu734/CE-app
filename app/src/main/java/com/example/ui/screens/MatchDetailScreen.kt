@@ -857,6 +857,32 @@ private fun TeamInningsScorecardSection(
                 }
             }
 
+            if (innings != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("Fall of wickets", style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold, color = TextPrimarySlate)
+                if (innings.fallOfWickets.isEmpty()) {
+                    Text(if (innings.wickets == 0) "No wickets lost." else "Wicket details were not recorded for this innings.",
+                        style = MaterialTheme.typography.bodySmall, color = TextMutedSlate,
+                        modifier = Modifier.padding(top = 6.dp))
+                } else {
+                    innings.fallOfWickets.forEach { fall ->
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp)
+                            .testTag("fall_of_wicket_${innings.team}_${fall.wicket}"),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Text("${fall.runs}/${fall.wicket}", fontWeight = FontWeight.Bold,
+                                color = LavenderPrimary, modifier = Modifier.width(60.dp))
+                            Text(playerMap[fall.player]?.name ?: "Player",
+                                style = MaterialTheme.typography.bodyMedium, color = TextPrimarySlate,
+                                modifier = Modifier.weight(1f).clickable { onPlayerClick(fall.player) })
+                            Text("${CricketCalculations.formatOvers(fall.balls)} ov",
+                                style = MaterialTheme.typography.bodySmall, color = TextSecondarySlate,
+                                modifier = Modifier.padding(start = 8.dp))
+                        }
+                    }
+                }
+            }
+
             // Bowling Table Header: Bowler, O, R, W
             Spacer(modifier = Modifier.height(12.dp))
             Row(

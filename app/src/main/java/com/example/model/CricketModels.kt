@@ -78,7 +78,15 @@ data class CeInnings(
     val extras: Int? = null,
     val extrasBreakdown: CeExtrasBreakdown? = null,
     val endedEarly: Boolean = false,
-    val adjustedRuns: Int? = null
+    val adjustedRuns: Int? = null,
+    val fallOfWickets: List<CeFallOfWicket> = emptyList()
+)
+
+data class CeFallOfWicket(
+    val wicket: Int,
+    val runs: Int,
+    val player: String,
+    val balls: Int
 )
 
 data class CeExtrasBreakdown(
