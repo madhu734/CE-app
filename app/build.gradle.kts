@@ -66,7 +66,8 @@ android {
 }
 
 tasks.withType<Test>().configureEach {
-    systemProperty("robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2")
+    systemProperty("robolectric.dependency.repo.url", providers.environmentVariable("ROBOLECTRIC_MAVEN_REPO")
+        .getOrElse("https://repo.maven.apache.org/maven2"))
     systemProperty("crickEnglish.liveApi", providers.gradleProperty("liveApi").getOrElse("false"))
 }
 

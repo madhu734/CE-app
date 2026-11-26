@@ -47,6 +47,7 @@ jobs:
         uses: gradle/actions/setup-gradle@0b6dd653ba04f4f93bf581ec31e66cbd7dcb644d # v4
 
       - name: Restore persistent signing key
+        # The key is shared across all release versions.
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
@@ -74,6 +75,7 @@ jobs:
 
       - name: Run tests, lint and build signed release
         env:
+          ROBOLECTRIC_MAVEN_REPO: https://maven-central.storage-download.googleapis.com/maven2
           KEYSTORE_PATH: ${{ runner.temp }}/crick-english-release.jks
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -81,6 +83,18 @@ jobs:
         run: |
           ./gradlew --no-daemon --console plain \
             :app:testDebugUnitTest :app:lintRelease :app:assembleRelease
+
+      - name: Keep test and lint reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Android-validation-reports
+          path: |
+            app/build/test-results/testDebugUnitTest/
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/reports/lint-results-release.*
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Verify signature and package release
         id: package
