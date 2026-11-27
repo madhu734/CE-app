@@ -666,6 +666,10 @@ fun PlayerProfileScreen(
                             style = MaterialTheme.typography.titleMedium,
                             color = TextPrimarySlate
                         )
+                        if (summary.battingRows.any { it.unrecorded.isNotEmpty() }) {
+                            Text("Some paper figures are unrecorded. Strike rates use complete innings only.",
+                                style = MaterialTheme.typography.bodySmall, color = TextSecondarySlate)
+                        }
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Row(

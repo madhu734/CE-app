@@ -818,7 +818,7 @@ private fun TeamInningsScorecardSection(
                     modifier = Modifier.padding(vertical = 8.dp),
                     color = DividerSlate
                 )
-                val extrasVal = innings.extras ?: 0
+                val extrasVal = innings.extras?.toString() ?: "—"
                 val breakdownText = innings.extrasBreakdown?.let { eb ->
                     "(w ${eb.wide}, nb ${eb.noBall}, b ${eb.bye}, lb ${eb.legBye})"
                 } ?: ""
