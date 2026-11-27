@@ -56,7 +56,8 @@ data class PlayerMatchBattingRow(
     val fours: Int,
     val sixes: Int,
     val notOut: Boolean,
-    val retired: Boolean
+    val retired: Boolean,
+    val unrecorded: Set<String> = emptySet()
 )
 
 data class PlayerMatchBowlingRow(
@@ -432,6 +433,7 @@ object CricketCalculations {
             var matches: Int = 0,
             var runs: Int = 0,
             var ballsFaced: Int = 0,
+            var rateRuns: Int = 0,
             var fours: Int = 0,
             var sixes: Int = 0,
             var wickets: Int = 0,
@@ -455,7 +457,10 @@ object CricketCalculations {
                     acc.matches += 1
                 }
                 acc.runs += st.runs
-                acc.ballsFaced += st.ballsFaced
+                if (st.hasRecorded("runs") && st.hasRecorded("balls_faced")) {
+                    acc.rateRuns += st.runs
+                    acc.ballsFaced += st.ballsFaced
+                }
                 acc.fours += st.fours
                 acc.sixes += st.sixes
                 acc.wickets += st.wickets
@@ -475,7 +480,7 @@ object CricketCalculations {
             )
             val teamId = player.team.ifBlank { acc.lastTeamId }
             val srUnrounded = if (acc.ballsFaced > 0) {
-                (100.0 * acc.runs) / acc.ballsFaced.toDouble()
+                (100.0 * acc.rateRuns) / acc.ballsFaced.toDouble()
             } else {
                 0.0
             }
@@ -491,7 +496,7 @@ object CricketCalculations {
                 ballsBowled = acc.ballsBowled,
                 runsConceded = acc.runsConceded,
                 strikeRateUnrounded = srUnrounded,
-                strikeRateDisplay = formatStrikeRate(acc.runs, acc.ballsFaced)
+                strikeRateDisplay = formatStrikeRate(acc.rateRuns, acc.ballsFaced)
             )
         }
 
@@ -574,7 +579,8 @@ object CricketCalculations {
                             fours = playerStat.fours,
                             sixes = playerStat.sixes,
                             notOut = playerStat.notOut,
-                            retired = playerStat.retired
+                            retired = playerStat.retired,
+                            unrecorded = playerStat.unrecorded
                         )
                     )
                 }
@@ -595,7 +601,9 @@ object CricketCalculations {
         }
 
         val totalRuns = battingRows.sumOf { it.runs }
-        val totalBallsFaced = battingRows.sumOf { it.ballsFaced }
+        val rateRows = battingRows.filter { "runs" !in it.unrecorded && "balls_faced" !in it.unrecorded }
+        val totalBallsFaced = rateRows.sumOf { it.ballsFaced }
+        val rateRuns = rateRows.sumOf { it.runs }
         val totalFours = battingRows.sumOf { it.fours }
         val totalSixes = battingRows.sumOf { it.sixes }
 
@@ -635,7 +643,7 @@ object CricketCalculations {
             highestScoreDisplay = highestScoreDisplay,
             totalFours = totalFours,
             totalSixes = totalSixes,
-            seasonStrikeRateDisplay = formatStrikeRate(totalRuns, totalBallsFaced),
+            seasonStrikeRateDisplay = formatStrikeRate(rateRuns, totalBallsFaced),
             battingRows = battingRows,
             totalWickets = totalWickets,
             totalBallsBowled = totalBallsBowled,

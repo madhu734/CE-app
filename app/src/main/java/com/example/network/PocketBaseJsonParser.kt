@@ -170,7 +170,8 @@ object PocketBaseJsonParser {
             currentBowler = bowlerStr,
             playingSides = playingSidesList,
             playerStats = playerStatsList,
-            superOver = obj.optJSONObject("superOver")?.let { parseScorecard(it, matchId) }
+            superOver = obj.optJSONObject("superOver")?.let { parseScorecard(it, matchId) },
+            summaryNote = obj.optCleanString("summaryNote")
         )
     }
 
@@ -226,7 +227,10 @@ object PocketBaseJsonParser {
             runsConceded = obj.optInt("runs_conceded", 0),
             batted = obj.optBoolean("batted", false),
             notOut = obj.optBoolean("not_out", false),
-            retired = obj.optBoolean("retired", false)
+            retired = obj.optBoolean("retired", false),
+            unrecorded = obj.optJSONArray("unrecorded")?.let { fields ->
+                (0 until fields.length()).map { fields.optString(it) }.toSet()
+            } ?: emptySet()
         )
     }
 

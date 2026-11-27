@@ -729,9 +729,9 @@ fun PlayerProfileScreen(
                                     }
                                     val runsStr = "${row.runs}${if (row.notOut) "*" else ""}"
                                     ProfileColCell(runsStr, 38.dp, bold = true)
-                                    ProfileColCell(row.ballsFaced.toString(), 34.dp)
-                                    ProfileColCell(row.fours.toString(), 30.dp)
-                                    ProfileColCell(row.sixes.toString(), 30.dp)
+                                    ProfileColCell(if ("balls_faced" in row.unrecorded) "—" else row.ballsFaced.toString(), 34.dp)
+                                    ProfileColCell(if ("fours" in row.unrecorded) "—" else row.fours.toString(), 30.dp)
+                                    ProfileColCell(if ("sixes" in row.unrecorded) "—" else row.sixes.toString(), 30.dp)
                                 }
                                 if (idx < summary.battingRows.lastIndex) {
                                     HorizontalDivider(color = ScorecardSubtle)

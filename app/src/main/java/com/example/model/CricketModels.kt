@@ -65,7 +65,8 @@ data class CeScorecard(
     val currentBowler: String? = null,
     val playingSides: List<CePlayingSide> = emptyList(),
     val playerStats: List<PlayerMatchStat>? = null,
-    val superOver: CeScorecard? = null
+    val superOver: CeScorecard? = null,
+    val summaryNote: String = ""
 )
 
 data class CeInnings(
@@ -115,8 +116,12 @@ data class PlayerMatchStat(
     val runsConceded: Int = 0,
     val batted: Boolean = false,
     val notOut: Boolean = false,
-    val retired: Boolean = false
-)
+    val retired: Boolean = false,
+    val unrecorded: Set<String> = emptySet()
+) {
+    fun hasRecorded(field: String) = field !in unrecorded
+    fun display(field: String, value: Int) = if (hasRecorded(field)) value.toString() else "—"
+}
 
 data class CeSeasonHistory(
     val id: String,

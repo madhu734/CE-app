@@ -219,6 +219,13 @@ fun MatchDetailScreen(
                     }
                 }
 
+                match.scorecard?.summaryNote?.takeIf { it.isNotBlank() }?.let { note ->
+                    item(key = "paper_summary_note") {
+                        Text(note, style = MaterialTheme.typography.bodySmall, color = TextSecondarySlate,
+                            modifier = Modifier.fillMaxWidth().padding(12.dp))
+                    }
+                }
+
                 // Team scorecards
                 val inningsOrder = buildTeamOrderForScorecard(match)
                 if (match.scorecard == null) {
@@ -764,7 +771,8 @@ private fun TeamInningsScorecardSection(
                 batters.forEachIndexed { idx, st ->
                     val player = playerMap[st.player]
                     val runsDisplay = "${st.runs}${if (st.notOut) "*" else ""}"
-                    val srDisplay = CricketCalculations.formatStrikeRate(st.runs, st.ballsFaced)
+                    val srDisplay = if (st.hasRecorded("runs") && st.hasRecorded("balls_faced"))
+                        CricketCalculations.formatStrikeRate(st.runs, st.ballsFaced) else "—"
 
                     Row(
                         modifier = Modifier
@@ -793,9 +801,9 @@ private fun TeamInningsScorecardSection(
                             )
                         }
                         ScoreColumnCell(runsDisplay, width = 34.dp, bold = true)
-                        ScoreColumnCell(st.ballsFaced.toString(), width = 32.dp)
-                        ScoreColumnCell(st.fours.toString(), width = 28.dp)
-                        ScoreColumnCell(st.sixes.toString(), width = 28.dp)
+                        ScoreColumnCell(st.display("balls_faced", st.ballsFaced), width = 32.dp)
+                        ScoreColumnCell(st.display("fours", st.fours), width = 28.dp)
+                        ScoreColumnCell(st.display("sixes", st.sixes), width = 28.dp)
                         ScoreColumnCell(srDisplay, width = 46.dp)
                     }
                     if (idx < batters.lastIndex) {
